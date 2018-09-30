@@ -4,16 +4,16 @@
 #include <stdbool.h>
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
 
 //Starts up SDL and creates window
-//bool init(Uint32* pixels, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* gTexture);
+void close(Uint32**, SDL_Window**, SDL_Renderer**, SDL_Texture**);
 
 //Frees media and shuts down SDL
-//void close(Uint32* pixels, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* gTexture);
+bool init(Uint32**, SDL_Window**, SDL_Renderer**, SDL_Texture**);
 
-bool init(Uint32 *pixels, SDL_Window *gWindow, SDL_Renderer *gRenderer, SDL_Texture *gTexture)
+bool init(Uint32 **pixels, SDL_Window **gWindow, SDL_Renderer **gRenderer, SDL_Texture **gTexture)
 {
 	//Initialization flag
 	bool success = true;
@@ -27,8 +27,8 @@ bool init(Uint32 *pixels, SDL_Window *gWindow, SDL_Renderer *gRenderer, SDL_Text
 	else
 	{
 		//Create window
-		gWindow = SDL_CreateWindow("Langton's Ant", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-		if (gWindow == NULL)
+		*gWindow = SDL_CreateWindow("Langton's Ant", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		if (*gWindow == NULL)
 		{
 			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
 			success = false;
@@ -39,29 +39,38 @@ bool init(Uint32 *pixels, SDL_Window *gWindow, SDL_Renderer *gRenderer, SDL_Text
 			//gScreenSurface = SDL_GetWindowSurface(gWindow);
 
 			//Initialize the renderer
-			gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
+			*gRenderer = SDL_CreateRenderer(*gWindow, -1, 0);
 
 			//Initialize screen texture
-			gTexture = SDL_CreateTexture(gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN_WIDTH, SCREEN_HEIGHT);
+			*gTexture = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 			//Initialize pixel array
-			pixels = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(*pixels));
+			*pixels = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(**pixels));
 
 			//Override all pixels to white
-			memset(pixels, 255, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
+			memset(*pixels, 255, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
 		}
 	}
 
 	return success;
 }
 
-void close(Uint32* pixels, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* gTexture)
+void close(Uint32 **pixels, SDL_Window **gWindow, SDL_Renderer **gRenderer, SDL_Texture **gTexture)
 {
-	free(pixels);
+	//Free up allocated pixel array
+	free(*pixels);
+
+	//Destroy texture
+	SDL_DestroyTexture(*gTexture);
+	*gTexture = NULL;
+
+	//Destroy renderer
+	SDL_DestroyRenderer(*gRenderer);
+	*gRenderer = NULL;
 
 	//Destroy window
-	SDL_DestroyWindow(gWindow);
-	gWindow = NULL;
+	SDL_DestroyWindow(*gWindow);
+	*gWindow = NULL;
 
 	//Quit SDL subsystems
 	SDL_Quit();
@@ -74,16 +83,16 @@ int main(int argc, char ** argv)
 	bool leftMouseButtonDown = false;
 
 	//The window we'll be rendering to
-	SDL_Window* gWindow = NULL;
+	SDL_Window *gWindow = NULL;
 
 	//The pixel renderer
-	SDL_Renderer* gRenderer = NULL;
+	SDL_Renderer *gRenderer = NULL;
 
-	SDL_Texture* gTexture = NULL;
-	Uint32* pixels = NULL;
+	SDL_Texture *gTexture = NULL;
+	Uint32 *pixels = NULL;
 
 	//Start up SDL and create window
-	if (!init(pixels, gWindow, gRenderer, gTexture))
+	if (!init(&pixels, &gWindow, &gRenderer, &gTexture))
 	{
 		printf("Failed to initialize!\n");
 	}
@@ -114,8 +123,8 @@ int main(int argc, char ** argv)
 				{
 					int mouseX = event.motion.x;
 					int mouseY = event.motion.y;
-					printf("%d %d", mouseX, mouseY);
-					pixels[mouseY * SCREEN_WIDTH + mouseX] = 0;
+					printf("X:%d Y:%d    ", mouseX, mouseY);
+					pixels[mouseY * SCREEN_WIDTH + mouseX] = 0xFFFF0000;
 				}
 				break;
 			}
@@ -127,8 +136,7 @@ int main(int argc, char ** argv)
 	}
 
 	//Free resources and close SDL
-
-	close(pixels, gWindow, gRenderer, gTexture);
+	close(&pixels, &gWindow, &gRenderer, &gTexture);
 
 	return 0;
 }
