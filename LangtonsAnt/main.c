@@ -67,7 +67,7 @@ void close(Uint32* pixels, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Tex
 	SDL_Quit();
 }
 
-int main(int argc, char  argv)
+int main(int argc, char ** argv)
 {
 	bool quit = false;
 
@@ -83,7 +83,7 @@ int main(int argc, char  argv)
 	Uint32* pixels = NULL;
 
 	//Start up SDL and create window
-	if (!init(&pixels, &gWindow, &gRenderer, &gTexture))
+	if (!init(pixels, gWindow, gRenderer, gTexture))
 	{
 		printf("Failed to initialize!\n");
 	}
