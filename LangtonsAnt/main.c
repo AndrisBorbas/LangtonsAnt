@@ -11,9 +11,9 @@ const int SCREEN_HEIGHT = 720;
 void close(Uint32**, SDL_Window**, SDL_Renderer**, SDL_Texture**);
 
 //Frees media and shuts down SDL
-bool init(Uint32**, SDL_Window**, SDL_Renderer**, SDL_Texture**);
+bool init(Uint32**, Uint32, SDL_Window**, SDL_Renderer**, SDL_Texture**);
 
-bool init(Uint32 **pixels, SDL_Window **gWindow, SDL_Renderer **gRenderer, SDL_Texture **gTexture)
+bool init(Uint32** pixels, Uint32*** pixelarr, SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** gTexture)
 {
 	//Initialization flag
 	bool success = true;
@@ -47,15 +47,22 @@ bool init(Uint32 **pixels, SDL_Window **gWindow, SDL_Renderer **gRenderer, SDL_T
 			//Initialize pixel array
 			*pixels = malloc(SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(**pixels));
 
+			//Initialize 2D pixel texture array
+			*pixelarr = (Uint32 ***)malloc(sizeof(Uint32 *) * SCREEN_WIDTH);
+			*pixelarr[0] = (Uint32 **)malloc(sizeof(Uint32) * SCREEN_HEIGHT * SCREEN_WIDTH);
+			for (int i = 0; i < SCREEN_WIDTH; i++)
+				(*pixelarr)[i] = (**pixelarr + SCREEN_HEIGHT * i);
+
 			//Override all pixels to white
 			memset(*pixels, 255, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
+			memset(**pixelarr, 255, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
 		}
 	}
 
 	return success;
 }
 
-void close(Uint32 **pixels, SDL_Window **gWindow, SDL_Renderer **gRenderer, SDL_Texture **gTexture)
+void close(Uint32** pixels, SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** gTexture)
 {
 	//Free up allocated pixel array
 	free(*pixels);
@@ -90,9 +97,10 @@ int main(int argc, char ** argv)
 
 	SDL_Texture *gTexture = NULL;
 	Uint32 *pixels = NULL;
+	Uint32 **pixelarr = NULL;
 
 	//Start up SDL and create window
-	if (!init(&pixels, &gWindow, &gRenderer, &gTexture))
+	if (!init(&pixels, &pixelarr, &gWindow, &gRenderer, &gTexture))
 	{
 		printf("Failed to initialize!\n");
 	}
@@ -102,7 +110,7 @@ int main(int argc, char ** argv)
 
 		while (!quit)
 		{
-			SDL_UpdateTexture(gTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
+
 
 			SDL_WaitEvent(&event);
 
@@ -124,11 +132,19 @@ int main(int argc, char ** argv)
 					int mouseX = event.motion.x;
 					int mouseY = event.motion.y;
 					printf("X:%d Y:%d    ", mouseX, mouseY);
-					pixels[mouseY * SCREEN_WIDTH + mouseX] = 0xFFFF0000;
+					pixelarr[mouseX][mouseY] = 0xFF00FF00;
+					printf("%d  ", pixelarr[mouseX][mouseY]);
+					for (int x = 0; x < SCREEN_WIDTH; x++) {
+						for (int y = 0; y < SCREEN_HEIGHT; y++) {
+							pixels[x + y * SCREEN_WIDTH] = pixelarr[x][y];
+						}
+					}
+					//pixels[mouseY * SCREEN_WIDTH + mouseX] = 0xFF00FF00;
+					printf("%d |", pixels[mouseY * SCREEN_WIDTH + mouseX]);
 				}
 				break;
 			}
-
+			SDL_UpdateTexture(gTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
 			SDL_RenderClear(gRenderer);
 			SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
 			SDL_RenderPresent(gRenderer);
