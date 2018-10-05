@@ -33,7 +33,7 @@
     <ClCompile Include="Tutorials\04_key_presses.c">
       <Filter>Source Files\Tutorials</Filter>
     </ClCompile>
-    <ClCompile Include="PixelRender.c">
+    <ClCompile Include="Tutorials\PixelRender.c">
       <Filter>Source Files\Tutorials</Filter>
     </ClCompile>
   </ItemGroup>
