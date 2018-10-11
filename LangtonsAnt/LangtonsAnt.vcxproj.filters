@@ -36,5 +36,14 @@
     <ClCompile Include="Tutorials\PixelRender.c">
       <Filter>Source Files\Tutorials</Filter>
     </ClCompile>
+    <ClCompile Include="test.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="draw.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="szorgalmi6.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
