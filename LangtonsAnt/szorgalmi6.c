@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 //scan margin
-const double eps = 1.5;
+const double eps = 1;
 
 //colors in hex ARGB
 /*enum colors {
@@ -39,21 +39,25 @@ void pontok(int argc, char argv[]) {
 
 	for (int x = 0; x < SCREEN_WIDTH; x++) {
 		for (int y = 0; y < SCREEN_HEIGHT; y++) {
-			int redD, greenD, blueD, whiteD1, whiteD2;
+			double redD, greenD, blueD, whiteD1, whiteD2;
 			//piros
 			redD = (sqrt(pow((320 - x), 2) + pow((240 - y), 2)));
-			if (redD > (200 - eps) && redD < (200 + eps)) gPixels[y * SCREEN_WIDTH + x] = 0xFFFF0000;
+			redD = fabs(redD-200);
+			if (redD < eps) gPixels[y * SCREEN_WIDTH + x] = 0xFFFF0000;
 			//zöld
 			greenD = (sqrt(pow((240 - x), 2) + pow((200 - y), 2)) + (sqrt(pow((400 - x), 2) + pow((280 - y), 2))));
-			if (greenD > (250 - eps) && greenD < (250 + eps)) gPixels[y * SCREEN_WIDTH + x] = 0xFF00FF00;
+			greenD = fabs(greenD - 250);
+			if (greenD < eps) gPixels[y * SCREEN_WIDTH + x] = 0xFF00FF00;
 			//kék
 			blueD = (sqrt(pow((240 - x), 2) + pow((240 - y), 2)) - (sqrt(pow((400 - x), 2) + pow((240 - y), 2))));
 			if (blueD < 0)blueD = -blueD;
-			if (blueD > (100 - eps) && blueD < (100 + eps)) gPixels[y * SCREEN_WIDTH + x] = 0xFF0000FF;
+			blueD = fabs(blueD - 100);
+			if (blueD < eps) gPixels[y * SCREEN_WIDTH + x] = 0xFF0000FF;
 			//fehér
 			whiteD1 = (sqrt(pow((320 - x), 2) + pow((240 - y), 2)));
-			whiteD2 = (sqrt(pow((400 - x), 2)));
-			if (whiteD1 > (whiteD2 - eps) && whiteD1 < (whiteD2 + eps)) gPixels[y * SCREEN_WIDTH + x] = 0xFFFFFFFF;
+			whiteD2 = fabs(400 - x);
+			whiteD1 = fabs(whiteD1-whiteD2);
+			if (whiteD1 < eps) gPixels[y * SCREEN_WIDTH + x] = 0xFFFFFFFF;
 		}
 	}
 	SDL_UpdateTexture(gTexture, NULL, gPixels, SCREEN_WIDTH * sizeof(Uint32));

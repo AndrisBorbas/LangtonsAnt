@@ -16,7 +16,8 @@ enum AntHeading
 	West = 270
 };
 
-typedef struct Ant {
+typedef struct Ant 
+{
 	int x, y, heading;
 }Ant;
 
@@ -153,7 +154,7 @@ void gmain(int argc, char ** argv)
 				{
 				case SDLK_SPACE:
 					moveAnt(&pixels, &ant);
-					//pixels[ant.y * SCREEN_WIDTH + ant.x] = 0xFFFF0000;
+					pixels[ant.y * SCREEN_WIDTH + ant.x] = 0xFFFF0000;
 					SDL_UpdateTexture(gTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
 					break;
 
@@ -181,8 +182,10 @@ void gmain(int argc, char ** argv)
 						//printf("%d  ", pixelarr[mouseX][mouseY]);
 
 						//Convert 2D texture to 1D pixel array
-						for (int x = 0; x < SCREEN_WIDTH; x++) {
-							for (int y = 0; y < SCREEN_HEIGHT; y++) {
+						for (int x = 0; x < SCREEN_WIDTH; x++) 
+						{
+							for (int y = 0; y < SCREEN_HEIGHT; y++)
+							{
 								pixels[x + y * SCREEN_WIDTH] = pixelarr[x][y];
 							}
 						}
