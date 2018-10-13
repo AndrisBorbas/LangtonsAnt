@@ -28,13 +28,13 @@ void close(Uint32**, SDL_Window**, SDL_Renderer**, SDL_Texture**);
 bool init(Uint32**, Uint32, SDL_Window**, SDL_Renderer**, SDL_Texture**);
 
 //ant
-void moveAnt(Uint32**, Ant*);
+void moveAnt(Uint32*, Ant*);
 
 void moveAnt(Uint32** pixels, Ant* ant)
 {
 	ant->x = ant->x + SCALE;
 	//printf("%d", ant->x);
-	*pixels[ant->y * SCREEN_WIDTH + ant->x] = 0xFFFF0000;
+	(*pixels)[ant->y * SCREEN_WIDTH + ant->x] = 0xFFFF0000;
 }
 
 bool init(Uint32** pixels, Uint32*** pixelarr, SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** gTexture)
@@ -154,7 +154,7 @@ void gmain(int argc, char ** argv)
 				{
 				case SDLK_SPACE:
 					moveAnt(&pixels, &ant);
-					pixels[ant.y * SCREEN_WIDTH + ant.x] = 0xFFFF0000;
+					//pixels[ant.y * SCREEN_WIDTH + ant.x] = 0xFFFF0000;
 					SDL_UpdateTexture(gTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
 					break;
 
