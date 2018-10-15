@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+//memset with 32 bit unsigned integer
 void memset32(void * dest, Uint32 value, uintptr_t size)
 {
 	uintptr_t i;
@@ -21,7 +22,7 @@ volatile int SCREEN_WIDTH = 960;
 //Height of the window
 volatile int SCREEN_HEIGHT = 960;
 //Number of pixels per grid square
-volatile int SCALE = 5;
+volatile int SCALE = 20;
 //Number of pixels between grid squares
 volatile int SPACING = 1;
 //Number of pixels the ant is smaller than the grid (has to be at least 1)
@@ -57,17 +58,18 @@ void close(Uint32**, SDL_Window**, SDL_Renderer**, SDL_Texture**);
 bool init(Uint32**, Uint32, SDL_Window**, SDL_Renderer**, SDL_Texture**);
 
 //meow
-void antgorithm(Uint32**, Ant*);
+bool antgorithm(Uint32**, Ant*);
 
 //move ant and invert past location
-void moveAnt(Uint32**, Ant*);
+bool moveAnt(Uint32**, Ant*);
 
-void moveAnt(Uint32** pixels, Ant* ant)
+bool moveAnt(Uint32** pixels, Ant* ant)
 {
+	//temporary speed booster
 	for (int db = 0; db < 10; db++) {
-		antgorithm(pixels, ant);
+		if(!antgorithm(pixels, ant))return false;
 		lepes++;
-		printf("%d", lepes);
+		printf("%d. lepes: ", lepes);
 
 		//printf("%d  %d\n", ant->y, ant->y - SCALE / 2 + SPACING);
 		//(*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + (ant->y - SCALE - SPACING + ANTMARGIN) * SCREEN_WIDTH] = 0xFF00FF00;
@@ -77,6 +79,11 @@ void moveAnt(Uint32** pixels, Ant* ant)
 		{
 			for (int j = (ant->y - SCALE); j < (ant->y + SCALE - SPACING); j++)
 			{
+				if (i<0 || i>SCREEN_WIDTH || j<0 || j>SCREEN_HEIGHT)
+				{
+					printf("ERROR: ant out of bounds at x=%d, y=%d.", i, j);
+					return false;
+				}
 				switch (ant->lasttile)
 				{
 				case GRAY:
@@ -116,28 +123,43 @@ void moveAnt(Uint32** pixels, Ant* ant)
 		{
 			for (int j = (ant->y - SCALE + ANTMARGIN); j < (ant->y + SCALE - SPACING - ANTMARGIN); j++)
 			{
+				if (i<0 || i>SCREEN_WIDTH || j<0 || j>SCREEN_HEIGHT)
+				{
+					printf("ERROR: ant out of bounds at x=%d, y=%d.", i, j);
+					return false;
+				}
 				(*pixels)[i + j * SCREEN_WIDTH] = 0xFFFF0000;
 			}
 		}
 	}
+	return true;
 }
 
-void antgorithm(Uint32** pixels, Ant* ant) {
+bool antgorithm(Uint32** pixels, Ant* ant) {
 	//printf("%u\n%u\n%u\n\n", ((*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + ((ant->y - SCALE - SPACING + ANTMARGIN)*SCREEN_WIDTH)]), BLACK, 0xFF000000);
-	if (((*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + ((ant->y - SCALE - SPACING + ANTMARGIN)*SCREEN_WIDTH)]) == BLACK || ((*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + ((ant->y - SCALE - SPACING + ANTMARGIN)*SCREEN_WIDTH)]) == GRAY)
+	int xpos = (ant->x - SCALE - SPACING + ANTMARGIN);
+	int ypos = (ant->y - SCALE - SPACING + ANTMARGIN);
+
+	if (xpos < 0 || xpos > SCREEN_WIDTH || ypos < 0 || ypos > SCREEN_HEIGHT)return false;
+
+	int position = xpos + (ypos * SCREEN_WIDTH);
+	if (((*pixels)[position]) == BLACK || ((*pixels)[position]) == GRAY)
 	{
 		ant->heading = ant->heading + 90;
 		if (ant->heading > 270) ant->heading = ant->heading - 360;
 		ant->lasttile = GRAY;
-		printf("jobb");
+		printf("jobb\n");
+		return true;
 	}
-	if (((*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + ((ant->y - SCALE - SPACING + ANTMARGIN)*SCREEN_WIDTH)]) == DARKWHITE)
+	if (((*pixels)[position]) == DARKWHITE)
 	{
 		ant->heading = ant->heading - 90;
 		if (ant->heading < 0) ant->heading = ant->heading + 360;
 		ant->lasttile = DARKWHITE;
-		printf("bal");
+		printf("bal\n");
+		return true;
 	}
+	return false;
 }
 
 bool init(Uint32** pixels, Uint32*** pixelarr, SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** gTexture)
@@ -218,11 +240,16 @@ void gmain(int argc, char ** argv)
 	ant.heading = LEFT;
 	ant.lasttile = DARKWHITE;
 
+	//Handle normal quit
 	bool quit = false;
+	//Handle quit on error
+	bool equit = false;
+	//Let the algorithm run
+	bool Running = false;
+	//Is there an error
+	bool ERROR = false;
 
 	bool leftMouseButtonDown = false;
-
-	bool Running = false;
 
 	//The window we'll be rendering to
 	SDL_Window *gWindow = NULL;
@@ -258,8 +285,12 @@ void gmain(int argc, char ** argv)
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_SPACE:
-					moveAnt(&pixels, &ant);
-					SDL_UpdateTexture(gTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
+					if (!moveAnt(&pixels, &ant))
+					{
+        				ERROR = true;
+						quit = true;
+					}
+					else SDL_UpdateTexture(gTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
 					//if (Running)Running = false;
 					//else Running = true;
 					break;
@@ -324,14 +355,25 @@ void gmain(int argc, char ** argv)
 					moveAnt(&pixels, &ant);
 					SDL_UpdateTexture(gTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
 				}
-				SDL_RenderClear(gRenderer);
-				SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
-				SDL_RenderPresent(gRenderer);
+				if (!ERROR) {
+					SDL_RenderClear(gRenderer);
+					SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
+					SDL_RenderPresent(gRenderer);
+				}
 			}
 		}
-
+		if (ERROR)
+		{
+			while (!equit)
+			{
+				SDL_WaitEvent(&event);
+				if (event.type == SDL_QUIT)
+				{
+					equit = true;
+				}
+			}
+		}
 		//Free resources and close SDL
 		close(&pixels, &gWindow, &gRenderer, &gTexture);
-
 	}
 }
