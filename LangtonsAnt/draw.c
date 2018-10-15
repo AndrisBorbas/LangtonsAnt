@@ -22,6 +22,7 @@ volatile int SCREEN_HEIGHT = 960;
 volatile int SCALE = 10;
 volatile int SPACING = 1;
 volatile int ANTMARGIN = 1;
+int lepes = 0;
 
 enum AntHeading
 {
@@ -35,7 +36,7 @@ enum HEXARGB
 {
 	WHITE = 0xFFFFFFFF,
 	DARKWHITE = 0xFFDDDDDD,
-	GRAY = 0xFF242424,
+	GRAY = 0xFF333333,
 	BLACK = 0xFF000000
 };
 
@@ -59,6 +60,9 @@ void moveAnt(Uint32**, Ant*);
 void moveAnt(Uint32** pixels, Ant* ant)
 {
 	antgorithm(pixels, ant);
+	lepes++;
+	printf("%d", lepes);
+	
 	//printf("%d  %d\n", ant->y, ant->y - SCALE / 2 + SPACING);
 	//(*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + (ant->y - SCALE - SPACING + ANTMARGIN) * SCREEN_WIDTH] = 0xFF00FF00;
 
@@ -116,7 +120,6 @@ void antgorithm(Uint32** pixels, Ant* ant) {
 	//printf("%u\n%u\n%u\n\n", ((*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + ((ant->y - SCALE - SPACING + ANTMARGIN)*SCREEN_WIDTH)]), BLACK, 0xFF000000);
 	if (((*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + ((ant->y - SCALE - SPACING + ANTMARGIN)*SCREEN_WIDTH)]) == BLACK || ((*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + ((ant->y - SCALE - SPACING + ANTMARGIN)*SCREEN_WIDTH)]) == GRAY)
 	{
-		//printf("%u", ant->x - SCALE / 2 + SPACING);
 		ant->heading = ant->heading + 90;
 		if (ant->heading > 270) ant->heading = ant->heading - 360;
 		ant->lasttile = GRAY;
@@ -125,7 +128,7 @@ void antgorithm(Uint32** pixels, Ant* ant) {
 	if (((*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + ((ant->y - SCALE - SPACING + ANTMARGIN)*SCREEN_WIDTH)]) == DARKWHITE)
 	{
 		ant->heading = ant->heading - 90;
-		if (ant->heading > 270) ant->heading = ant->heading + 360;
+		if (ant->heading < 0) ant->heading = ant->heading + 360;
 		ant->lasttile = DARKWHITE;
 		printf("bal");
 	}
@@ -206,8 +209,8 @@ void gmain(int argc, char ** argv)
 	Ant ant;
 	ant.x = SCREEN_WIDTH / 2;
 	ant.y = SCREEN_HEIGHT / 2;
-	ant.heading = UP;
-	ant.lasttile = GRAY;
+	ant.heading = LEFT;
+	ant.lasttile = DARKWHITE;
 
 	bool quit = false;
 
@@ -249,10 +252,10 @@ void gmain(int argc, char ** argv)
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_SPACE:
-					//moveAnt(&pixels, &ant);
-					//SDL_UpdateTexture(gTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
-					if (Running)Running = false;
-					else Running = true;
+					moveAnt(&pixels, &ant);
+					SDL_UpdateTexture(gTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
+					//if (Running)Running = false;
+					//else Running = true;
 					break;
 				case SDLK_w:
 					ant.heading = UP;
