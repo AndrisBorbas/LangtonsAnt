@@ -16,12 +16,17 @@ void memset32(void * dest, Uint32 value, uintptr_t size)
 	}
 }
 
-//Screen dimension constants
+//Width of the window
 volatile int SCREEN_WIDTH = 960;
+//Height of the window
 volatile int SCREEN_HEIGHT = 960;
-volatile int SCALE = 10;
+//Number of pixels per grid square
+volatile int SCALE = 5;
+//Number of pixels between grid squares
 volatile int SPACING = 1;
+//Number of pixels the ant is smaller than the grid (has to be at least 1)
 volatile int ANTMARGIN = 1;
+
 int lepes = 0;
 
 enum AntHeading
@@ -59,61 +64,62 @@ void moveAnt(Uint32**, Ant*);
 
 void moveAnt(Uint32** pixels, Ant* ant)
 {
-	antgorithm(pixels, ant);
-	lepes++;
-	printf("%d", lepes);
-	
-	//printf("%d  %d\n", ant->y, ant->y - SCALE / 2 + SPACING);
-	//(*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + (ant->y - SCALE - SPACING + ANTMARGIN) * SCREEN_WIDTH] = 0xFF00FF00;
+	for (int db = 0; db < 10; db++) {
+		antgorithm(pixels, ant);
+		lepes++;
+		printf("%d", lepes);
 
-	//invert last location
-	for (int i = (ant->x - SCALE); i < (ant->x + SCALE - SPACING); i++)
-	{
-		for (int j = (ant->y - SCALE); j < (ant->y + SCALE - SPACING); j++)
+		//printf("%d  %d\n", ant->y, ant->y - SCALE / 2 + SPACING);
+		//(*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + (ant->y - SCALE - SPACING + ANTMARGIN) * SCREEN_WIDTH] = 0xFF00FF00;
+
+		//invert last location
+		for (int i = (ant->x - SCALE); i < (ant->x + SCALE - SPACING); i++)
 		{
-			switch (ant->lasttile)
+			for (int j = (ant->y - SCALE); j < (ant->y + SCALE - SPACING); j++)
 			{
-			case GRAY:
-				(*pixels)[i + j * SCREEN_WIDTH] = DARKWHITE;
-				break;
-			case DARKWHITE:
-				(*pixels)[i + j * SCREEN_WIDTH] = GRAY;
-				break;
-			default:
-				break;
+				switch (ant->lasttile)
+				{
+				case GRAY:
+					(*pixels)[i + j * SCREEN_WIDTH] = DARKWHITE;
+					break;
+				case DARKWHITE:
+					(*pixels)[i + j * SCREEN_WIDTH] = GRAY;
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+
+
+		//printf("%d ", ant->heading);
+		switch (ant->heading)
+		{
+		case UP:
+			ant->y = ant->y - SCALE * 2;
+			break;
+		case DOWN:
+			ant->y = ant->y + SCALE * 2;
+			break;
+		case RIGHT:
+			ant->x = ant->x + SCALE * 2;
+			break;
+		case LEFT:
+			ant->x = ant->x - SCALE * 2;
+			break;
+		default:
+			break;
+		}
+		//printf("%d\n", ant->heading);
+		for (int i = (ant->x - SCALE + ANTMARGIN); i < (ant->x + SCALE - SPACING - ANTMARGIN); i++)
+		{
+			for (int j = (ant->y - SCALE + ANTMARGIN); j < (ant->y + SCALE - SPACING - ANTMARGIN); j++)
+			{
+				(*pixels)[i + j * SCREEN_WIDTH] = 0xFFFF0000;
 			}
 		}
 	}
-
-
-
-	//printf("%d ", ant->heading);
-	switch (ant->heading)
-	{
-	case UP:
-		ant->y = ant->y - SCALE * 2;
-		break;
-	case DOWN:
-		ant->y = ant->y + SCALE * 2;
-		break;
-	case RIGHT:
-		ant->x = ant->x + SCALE * 2;
-		break;
-	case LEFT:
-		ant->x = ant->x - SCALE * 2;
-		break;
-	default:
-		break;
-	}
-	//printf("%d\n", ant->heading);
-	for (int i = (ant->x - SCALE + ANTMARGIN); i < (ant->x + SCALE - SPACING - ANTMARGIN); i++)
-	{
-		for (int j = (ant->y - SCALE + ANTMARGIN); j < (ant->y + SCALE - SPACING - ANTMARGIN); j++)
-		{
-			(*pixels)[i + j * SCREEN_WIDTH] = 0xFFFF0000;
-		}
-	}
-
 }
 
 void antgorithm(Uint32** pixels, Ant* ant) {
@@ -277,41 +283,41 @@ void gmain(int argc, char ** argv)
 					moveAnt(&pixels, &ant);
 					SDL_UpdateTexture(gTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
 					break;
-				/*case SDL_MOUSEBUTTONUP:
-					if (event.button.button == SDL_BUTTON_LEFT)
-						leftMouseButtonDown = false;
-					break;
-				case SDL_MOUSEBUTTONDOWN:
-					if (event.button.button == SDL_BUTTON_LEFT)
-						leftMouseButtonDown = true;
-				case SDL_MOUSEMOTION:
-					if (leftMouseButtonDown)
-					{
-						//Get mouse position
-						int mouseX = event.motion.x;
-						int mouseY = event.motion.y;
-						printf("X:%d Y:%d    ", mouseX, mouseY);
-
-						//Set 2D texture
-						pixelarr[mouseX][mouseY] = 0xFFFF0000;
-						pixelarr[mouseX][mouseY + 1] = 0xFFFF0000;
-						pixelarr[mouseX + 1][mouseY] = 0xFFFF0000;
-						pixelarr[mouseX + 1][mouseY + 1] = 0xFFFF0000;
-
-						//printf("%d  ", pixelarr[mouseX][mouseY]);
-
-						//Convert 2D texture to 1D pixel array
-						for (int x = 0; x < SCREEN_WIDTH; x++)
+					/*case SDL_MOUSEBUTTONUP:
+						if (event.button.button == SDL_BUTTON_LEFT)
+							leftMouseButtonDown = false;
+						break;
+					case SDL_MOUSEBUTTONDOWN:
+						if (event.button.button == SDL_BUTTON_LEFT)
+							leftMouseButtonDown = true;
+					case SDL_MOUSEMOTION:
+						if (leftMouseButtonDown)
 						{
-							for (int y = 0; y < SCREEN_HEIGHT; y++)
+							//Get mouse position
+							int mouseX = event.motion.x;
+							int mouseY = event.motion.y;
+							printf("X:%d Y:%d    ", mouseX, mouseY);
+
+							//Set 2D texture
+							pixelarr[mouseX][mouseY] = 0xFFFF0000;
+							pixelarr[mouseX][mouseY + 1] = 0xFFFF0000;
+							pixelarr[mouseX + 1][mouseY] = 0xFFFF0000;
+							pixelarr[mouseX + 1][mouseY + 1] = 0xFFFF0000;
+
+							//printf("%d  ", pixelarr[mouseX][mouseY]);
+
+							//Convert 2D texture to 1D pixel array
+							for (int x = 0; x < SCREEN_WIDTH; x++)
 							{
-								pixels[x + y * SCREEN_WIDTH] = pixelarr[x][y];
+								for (int y = 0; y < SCREEN_HEIGHT; y++)
+								{
+									pixels[x + y * SCREEN_WIDTH] = pixelarr[x][y];
+								}
 							}
+							//pixels[mouseY * SCREEN_WIDTH + mouseX] = 0xFF00FF00;
+							//printf("%d |", pixels[mouseY * SCREEN_WIDTH + mouseX]);
 						}
-						//pixels[mouseY * SCREEN_WIDTH + mouseX] = 0xFF00FF00;
-						//printf("%d |", pixels[mouseY * SCREEN_WIDTH + mouseX]);
-					}
-					break;*/
+						break;*/
 				}
 				while (Running)
 				{
