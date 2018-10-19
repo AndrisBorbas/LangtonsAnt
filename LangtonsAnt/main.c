@@ -1,6 +1,223 @@
-int main() {
-	//pontok(0,"\0");
-	//test();
-	ANTMAiN(0,"\0");
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL2_gfxprimitives.h>
+#include <SDL_ttf.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+#include "everything.h"
+
+int ANTMAiN(int argc, char ** argv)
+{
+	//Width of the window
+	volatile int SCREEN_WIDTH = 960;
+	//Height of the window
+	volatile int SCREEN_HEIGHT = 960;
+	//Number of pixels per grid square
+	volatile int SCALE = 4;
+	//Number of pixels between grid squares
+	volatile int SPACING = 1;
+	//Number of pixels the ant is smaller than the grid (has to be at least 1)
+	volatile int ANTMARGIN = 1;
+	//Number of steps made by the ant;
+	int lepes = 0;
+
+	Ant ant;
+	ant.x = SCREEN_WIDTH / 2;
+	ant.y = SCREEN_HEIGHT / 2;
+	ant.heading = LEFT;
+	ant.lasttile = DARKWHITE;
+
+	Button startbutton;
+	startbutton.width = 150;
+	startbutton.height = 40;
+	startbutton.x = SCREEN_WIDTH / 2 - startbutton.width / 2;
+	startbutton.y = 100;
+
+	SDL_Color sdlaltDARKWHITE = { 221,221,221 }, sdlaltORANGE = { 247,99,12 };
+
+	//Handle normal quit
+	bool quit = false;
+	//Handle quit on error
+	bool equit = false;
+	//Start the algorithm
+	bool start = false;
+	//Let the algorithm run
+	bool Running = true;
+	//Is there an error
+	bool ERROR = false;
+
+	bool leftMouseButtonDown = false;
+
+	//The window we'll be rendering to
+	SDL_Window *gWindow = NULL;
+
+	//The pixel renderer
+	SDL_Renderer *gRenderer = NULL;
+
+	SDL_Texture *tPixelTexture = NULL;
+	SDL_Texture *tMainMenu = NULL;
+	SDL_Texture *tStrings = NULL;
+	SDL_Surface *sStrings = NULL;
+	SDL_Rect lStrings = { 0,0,0,0 };
+	Uint32 *pixels = NULL;
+	Uint32 **pixelTex = NULL;
+
+	//Start up SDL and create window
+	if (!initSDL(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN_WIDTH, SCREEN_HEIGHT))
+	{
+		printf("Failed to initialize: %s", SDL_GetError());
+		exit(1);
+	}
+
+	//Load font
+	TTF_Font *font = TTF_OpenFont("ExodusDemo-Striped.otf", 32);
+	if (!font) {
+		SDL_Log("Failed to open font: %s", TTF_GetError());
+		exit(1);
+	}
+
+	//Load main menu background
+	tMainMenu = IMG_LoadTexture(gRenderer, "MainMenu.png");
+	if (tMainMenu == NULL)
+	{
+		SDL_Log("Failed to open image: %s", IMG_GetError());
+		exit(1);
+	}
+	//Render main menu
+	SDL_RenderClear(gRenderer);
+	SDL_RenderCopy(gRenderer, tMainMenu, NULL, NULL);
+	SDL_RenderPresent(gRenderer);
+	roundedBoxColor(gRenderer, startbutton.x, startbutton.y, startbutton.x + startbutton.width, startbutton.y + startbutton.height, 6, altGRAY);
+	sStrings = TTF_RenderUTF8_Blended(font, "Start", sdlaltORANGE);
+	tStrings = SDL_CreateTextureFromSurface(gRenderer, sStrings);
+	lStrings.x = (startbutton.x + startbutton.width / 2 - sStrings->w / 2);
+	lStrings.y = (startbutton.y + startbutton.height / 2 - sStrings->h / 2);
+	lStrings.w = sStrings->w;
+	lStrings.h = sStrings->h;
+	SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
+	SDL_FreeSurface(sStrings);
+	SDL_RenderPresent(gRenderer);
+
+	SDL_Event event;
+
+	while (!quit && !start)
+	{
+		SDL_WaitEvent(&event);
+
+		switch (event.type)
+		{
+		case SDL_QUIT:
+			quit = true;
+			break;
+		case SDL_MOUSEBUTTONUP:
+			if (event.button.button == SDL_BUTTON_LEFT)
+			{
+				//Get mouse position
+				int mouseX;
+				int mouseY;
+				SDL_GetMouseState(&mouseX, &mouseY);
+				printf("mousex: %d, mousey: %d", mouseX, mouseY);
+				if (isMouseinButton(mouseX, mouseY, startbutton)) start = true;
+			}
+			break;
+			/*case SDL_MOUSEBUTTONDOWN:
+				if (event.button.button == SDL_BUTTON_LEFT)
+				{
+					//Get mouse position
+					int mouseX;
+					int mouseY;
+					SDL_GetMouseState(&mouseX, &mouseY);
+					printf("mousex: %d, mousey: %d", mouseX, mouseY);
+					if (isMouseinButton(mouseX, mouseY, startbutton)) start = true;
+				}
+				break;*/
+		}
+	}
+
+	//Initialize pixel textures
+	initPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	//Create base tickrate
+	SDL_TimerID tick = SDL_AddTimer(16, ftick, NULL);
+
+
+
+	while (!quit)
+	{
+		SDL_WaitEvent(&event);
+
+		switch (event.type)
+		{
+		case SDL_QUIT:
+			quit = true;
+			break;
+		case SDL_USEREVENT:
+			while (Running && !quit)
+			{
+				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))
+				{
+					ERROR = true;
+					quit = true;
+				}
+				convertPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
+				if (!ERROR) {
+					SDL_RenderClear(gRenderer);
+					SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
+					SDL_RenderPresent(gRenderer);
+				}
+				SDL_WaitEvent(&event);
+				switch (event.type)
+				{
+				case SDL_QUIT:
+					quit = true;
+					break;
+				case SDL_KEYDOWN:
+					switch (event.key.keysym.sym)
+					{
+					case SDLK_SPACE:
+						Running = false;
+						break;
+					}
+				}
+			}
+			break;
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym)
+			{
+			case SDLK_g:
+				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))
+				{
+					ERROR = true;
+					quit = true;
+				}
+				convertPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
+				break;
+			case SDLK_SPACE:
+				Running = true;
+				break;
+			}
+		}
+		if (ERROR) {
+			while (!equit)
+			{
+				SDL_WaitEvent(&event);
+				if (event.type == SDL_QUIT)
+				{
+					equit = true;
+				}
+			}
+		}
+		else
+		{
+			SDL_RenderClear(gRenderer);
+			SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
+			SDL_RenderPresent(gRenderer);
+		}
+	}
+	//Free resources and close SDL
+	close(&pixels, &pixelTex, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu);
 	return 0;
 }

@@ -77,6 +77,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>D:\Program Files\SDLLibraries\VS\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Program Files\SDLLibraries\VS\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -107,6 +109,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>SDL2.dll;SDL2_gfx.dll;SDL2_image.dll;SDL2_mixer.dll;SDL2_net.dll;SDL2_ttf.dll;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -142,8 +145,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="draw.c" />
+    <ClCompile Include="ant.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="SDLHandler.c" />
     <ClCompile Include="szorgalmi6.c" />
     <ClCompile Include="test.c" />
     <ClCompile Include="Tutorials\PixelRender.c">
@@ -161,6 +165,10 @@
     <ClCompile Include="Tutorials\04_key_presses.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Utilities.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="everything.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
