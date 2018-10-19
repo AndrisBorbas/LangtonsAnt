@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL2_gfxprimitives.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -55,6 +56,10 @@ enum HEXARGB
 	BLACK = 0xFF000000
 };
 
+typedef struct Button {
+	int x, y, width, height;
+}Button;
+
 //Stores the properties of the ant
 typedef struct Ant
 {
@@ -73,11 +78,213 @@ bool initPixels(Uint32**, Uint32***);
 //Converts pixel texture to sdl pixel format
 bool convertPixels(Uint32**, Uint32***);
 
+//Check if mouse is inside a button
+bool isMouseinButton(int, int, Button);
+
 //The alogorithm for the ants movement
 bool antgorithm(Uint32***, Ant*);
 
 //move ant and invert past location
 bool moveAnt(Uint32***, Ant*);
+
+void ANTMAiN(int argc, char ** argv)
+{
+	Ant ant;
+	ant.x = SCREEN_WIDTH / 2;
+	ant.y = SCREEN_HEIGHT / 2;
+	ant.heading = LEFT;
+	ant.lasttile = DARKWHITE;
+
+	Button startbutton;
+	startbutton.width = 150;
+	startbutton.height = 40;
+	startbutton.x = SCREEN_WIDTH / 2 - startbutton.width / 2;
+	startbutton.y = SCREEN_HEIGHT / 2 - startbutton.height / 2;
+
+	//Handle normal quit
+	bool quit = false;
+	//Handle quit on error
+	bool equit = false;
+	//Start the algorithm
+	bool start = false;
+	//Let the algorithm run
+	bool Running = false;
+	//Is there an error
+	bool ERROR = false;
+
+	bool leftMouseButtonDown = false;
+
+	//The window we'll be rendering to
+	SDL_Window *gWindow = NULL;
+
+	//The pixel renderer
+	SDL_Renderer *gRenderer = NULL;
+
+	SDL_Texture *tPixelTexture = NULL;
+	SDL_Texture *tMainMenu = NULL;
+	Uint32 *pixels = NULL;
+	Uint32 **pixelTex = NULL;
+
+	//Start up SDL and create window
+	if (!initSDL(&gWindow, &gRenderer, &tPixelTexture))
+	{
+		printf("Failed to initialize: %s", SDL_GetError());
+		exit(1);
+	}
+
+	//Load main menu background
+	tMainMenu = IMG_LoadTexture(gRenderer, "MainMenu.png");
+	if (tMainMenu == NULL)
+	{
+		SDL_Log("Nem nyithato meg a kepfajl: %s", IMG_GetError());
+		exit(1);
+	}
+	//Render main menu
+	SDL_RenderClear(gRenderer);
+	SDL_RenderCopy(gRenderer, tMainMenu, NULL, NULL);
+	SDL_RenderPresent(gRenderer);
+	rectangleRGBA();
+
+	SDL_Event event;
+
+	while (!quit || !start)
+	{
+		SDL_WaitEvent(&event);
+
+		switch (event.type)
+		{
+		case SDL_QUIT:
+			quit = true;
+			break;
+		case SDL_MOUSEBUTTONUP:
+			if (event.button.button == SDL_BUTTON_LEFT)
+			{
+				//Get mouse position
+				int mouseX;
+				int mouseY;
+				SDL_GetMouseState(&mouseX, &mouseY);
+				if (isMouseinButton(mouseX, mouseY, startbutton))start = true;
+			}
+			break;
+		case SDL_MOUSEMOTION:
+			if (leftMouseButtonDown)
+			{
+				//Get mouse position
+				int mouseX = event.motion.x;
+				int mouseY = event.motion.y;
+				printf("X:%d Y:%d    ", mouseX, mouseY);
+
+				//Set 2D texture
+				pixelTex[mouseX][mouseY] = 0xFFFF0000;
+				pixelTex[mouseX][mouseY + 1] = 0xFFFF0000;
+				pixelTex[mouseX + 1][mouseY] = 0xFFFF0000;
+				pixelTex[mouseX + 1][mouseY + 1] = 0xFFFF0000;
+
+				//printf("%d  ", pixelTex[mouseX][mouseY]);
+
+				//Convert 2D texture to 1D pixel array
+				for (int x = 0; x < SCREEN_WIDTH; x++)
+				{
+					for (int y = 0; y < SCREEN_HEIGHT; y++)
+					{
+						pixels[x + y * SCREEN_WIDTH] = pixelTex[x][y];
+					}
+				}
+				//pixels[mouseY * SCREEN_WIDTH + mouseX] = 0xFF00FF00;
+				//printf("%d |", pixels[mouseY * SCREEN_WIDTH + mouseX]);
+			}
+			break;
+		}
+	}
+
+	//Initialize pixel textures
+	initPixels(&pixels, &pixelTex);
+
+	//Create base tickrate
+	SDL_TimerID tick = SDL_AddTimer(16, ftick, NULL);
+
+
+
+	while (!quit)
+	{
+		SDL_WaitEvent(&event);
+
+		switch (event.type)
+		{
+		case SDL_QUIT:
+			quit = true;
+			break;
+		case SDL_USEREVENT:
+			while (Running)
+			{
+				if (!moveAnt(&pixelTex, &ant))
+				{
+					ERROR = true;
+					quit = true;
+				}
+				convertPixels(&pixels, &pixelTex);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
+				if (!ERROR) {
+					SDL_RenderClear(gRenderer);
+					SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
+					SDL_RenderPresent(gRenderer);
+				}
+				SDL_WaitEvent(&event);
+				switch (event.type)
+				{
+				case SDL_QUIT:
+					quit = true;
+					break;
+				case SDL_KEYDOWN:
+					switch (event.key.keysym.sym)
+					{
+					case SDLK_SPACE:
+						//if (Running)Running = false;
+						/*else */Running = false;
+						break;
+					}
+				}
+			}
+			break;
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym)
+			{
+			case SDLK_g:
+				if (!moveAnt(&pixelTex, &ant))
+				{
+					ERROR = true;
+					quit = true;
+				}
+				convertPixels(&pixels, &pixelTex);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
+				//if (Running)Running = false;
+				//else Running = true;
+				break;
+			case SDLK_SPACE:
+				Running = true;
+				break;
+			}
+		}
+		if (ERROR) {
+			while (!equit)
+			{
+				SDL_WaitEvent(&event);
+				if (event.type == SDL_QUIT)
+				{
+					equit = true;
+				}
+			}
+		}
+		else
+		{
+			SDL_RenderClear(gRenderer);
+			SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
+			SDL_RenderPresent(gRenderer);
+		}
+	}
+	//Free resources and close SDL
+	close(&pixels, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu);
+}
 
 bool moveAnt(Uint32*** pixelTex, Ant* ant)
 {
@@ -207,7 +414,10 @@ bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** gText
 			*gTexture = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN_WIDTH, SCREEN_HEIGHT);
 		}
 	}
-
+#ifdef __Win32__
+	freopen("CON", "w", stdout);
+	freopen("CON", "w", stderr);
+#endif
 	return success;
 }
 
@@ -237,6 +447,15 @@ bool convertPixels(Uint32** pixels, Uint32*** pixelarr) {
 	}
 }
 
+bool isMouseinButton(int mouseX, int mouseY, Button button)
+{
+	if (button.x > mouseX)return false;
+	if (button.x + button.width < mouseX)return false;
+	if (button.y > mouseY)return false;
+	if (button.y + button.height < mouseY)return false;
+	return true;
+}
+
 void close(Uint32** pixels, SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu)
 {
 	//Free up allocated pixel array
@@ -258,198 +477,4 @@ void close(Uint32** pixels, SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_
 
 	//Quit SDL subsystems
 	SDL_Quit();
-}
-
-void gmain(int argc, char ** argv)
-{
-	Ant ant;
-	ant.x = SCREEN_WIDTH / 2;
-	ant.y = SCREEN_HEIGHT / 2;
-	ant.heading = LEFT;
-	ant.lasttile = DARKWHITE;
-
-	//Handle normal quit
-	bool quit = false;
-	//Handle quit on error
-	bool equit = false;
-	//Let the algorithm run
-	bool Running = false;
-	//Is there an error
-	bool ERROR = false;
-
-	bool leftMouseButtonDown = false;
-
-	//The window we'll be rendering to
-	SDL_Window *gWindow = NULL;
-
-	//The pixel renderer
-	SDL_Renderer *gRenderer = NULL;
-
-	SDL_Texture *tPixelTexture = NULL;
-	SDL_Texture *tMainMenu = NULL;
-	Uint32 *pixels = NULL;
-	Uint32 **pixelTex = NULL;
-
-	//Start up SDL and create window
-	if (!initSDL(&gWindow, &gRenderer, &tPixelTexture))
-	{
-		printf("Failed to initialize: %s", SDL_GetError());
-		exit(1);
-	}
-	//Load main menu background
-	tMainMenu = IMG_LoadTexture(gRenderer, "MainMenu.png");
-	if (tMainMenu == NULL)
-	{
-		SDL_Log("Nem nyithato meg a kepfajl: %s", IMG_GetError());
-		exit(1);
-	}
-	//Render main menu
-	SDL_RenderClear(gRenderer);
-	SDL_RenderCopy(gRenderer, tMainMenu, NULL, NULL);
-	SDL_RenderPresent(gRenderer);
-
-
-
-	//Initialize pixel textures
-	initPixels(&pixels, &pixelTex);
-
-	//Create base tickrate
-	SDL_TimerID tick = SDL_AddTimer(16, ftick, NULL);
-
-	SDL_Event event;
-
-	while (!quit)
-	{
-		SDL_WaitEvent(&event);
-
-		switch (event.type)
-		{
-		case SDL_QUIT:
-			quit = true;
-			break;
-		case SDL_USEREVENT:
-			while (Running)
-			{
-				if (!moveAnt(&pixelTex, &ant))
-				{
-					ERROR = true;
-					quit = true;
-				}
-				convertPixels(&pixels, &pixelTex);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
-				if (!ERROR) {
-					SDL_RenderClear(gRenderer);
-					SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
-					SDL_RenderPresent(gRenderer);
-				}
-				SDL_WaitEvent(&event);
-				switch (event.type)
-				{
-				case SDL_QUIT:
-					quit = true;
-					break;
-				case SDL_KEYDOWN:
-					switch (event.key.keysym.sym)
-					{
-					case SDLK_SPACE:
-						//if (Running)Running = false;
-						/*else */Running = false;
-						break;
-					}
-				}
-			}
-			break;
-		case SDL_KEYDOWN:
-			switch (event.key.keysym.sym)
-			{
-			case SDLK_g:
-				if (!moveAnt(&pixelTex, &ant))
-				{
-					ERROR = true;
-					quit = true;
-				}
-				convertPixels(&pixels, &pixelTex);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
-				//if (Running)Running = false;
-				//else Running = true;
-				break;
-			case SDLK_SPACE:
-				Running = true;
-				break;
-			case SDLK_w:
-				ant.heading = UP;
-				moveAnt(&pixels, &ant);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
-				break;
-			case SDLK_s:
-				ant.heading = DOWN;
-				moveAnt(&pixels, &ant);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
-				break;
-			case SDLK_d:
-				ant.heading = RIGHT;
-				moveAnt(&pixels, &ant);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
-				break;
-			case SDLK_a:
-				ant.heading = LEFT;
-				moveAnt(&pixels, &ant);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
-				break;
-				/*case SDL_MOUSEBUTTONUP:
-					if (event.button.button == SDL_BUTTON_LEFT)
-						leftMouseButtonDown = false;
-					break;
-				case SDL_MOUSEBUTTONDOWN:
-					if (event.button.button == SDL_BUTTON_LEFT)
-						leftMouseButtonDown = true;
-				case SDL_MOUSEMOTION:
-					if (leftMouseButtonDown)
-					{
-						//Get mouse position
-						int mouseX = event.motion.x;
-						int mouseY = event.motion.y;
-						printf("X:%d Y:%d    ", mouseX, mouseY);
-
-						//Set 2D texture
-						pixelTex[mouseX][mouseY] = 0xFFFF0000;
-						pixelTex[mouseX][mouseY + 1] = 0xFFFF0000;
-						pixelTex[mouseX + 1][mouseY] = 0xFFFF0000;
-						pixelTex[mouseX + 1][mouseY + 1] = 0xFFFF0000;
-
-						//printf("%d  ", pixelTex[mouseX][mouseY]);
-
-						//Convert 2D texture to 1D pixel array
-						for (int x = 0; x < SCREEN_WIDTH; x++)
-						{
-							for (int y = 0; y < SCREEN_HEIGHT; y++)
-							{
-								pixels[x + y * SCREEN_WIDTH] = pixelTex[x][y];
-							}
-						}
-						//pixels[mouseY * SCREEN_WIDTH + mouseX] = 0xFF00FF00;
-						//printf("%d |", pixels[mouseY * SCREEN_WIDTH + mouseX]);
-					}
-					break;*/
-			}
-		}
-		if (ERROR) {
-			while (!equit)
-			{
-				SDL_WaitEvent(&event);
-				if (event.type == SDL_QUIT)
-				{
-					equit = true;
-				}
-			}
-		}
-		else
-		{
-			SDL_RenderClear(gRenderer);
-			SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
-			SDL_RenderPresent(gRenderer);
-		}
-	}
-	//Free resources and close SDL
-	close(&pixels, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu);
 }
