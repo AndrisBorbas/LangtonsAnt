@@ -2,6 +2,7 @@
 #include <SDL_image.h>
 #include <SDL2_gfxprimitives.h>
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 #include <stdbool.h>
 #include "everything.h"

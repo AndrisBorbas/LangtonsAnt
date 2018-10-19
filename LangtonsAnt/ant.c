@@ -2,6 +2,7 @@
 #include <SDL_image.h>
 #include <SDL2_gfxprimitives.h>
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 #include <stdbool.h>
 #include "everything.h"
@@ -9,8 +10,8 @@
 bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, int const SCREEN_HEIGHT, int const SCALE, int const SPACING, int ANTMARGIN)
 {
 	if (!antgorithm(pixelTex, ant, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))return false;
-	*lepes++;
-	printf("%d. lepes: ", lepes);
+	(*lepes)++;
+	printf("%d. lepes: ", *lepes);
 
 	//printf("%d  %d\n", ant->y, ant->y - SCALE / 2 + SPACING);
 	//(*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + (ant->y - SCALE - SPACING + ANTMARGIN) * SCREEN_WIDTH] = 0xFF00FF00;

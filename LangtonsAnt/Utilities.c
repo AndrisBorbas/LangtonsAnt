@@ -2,6 +2,7 @@
 #include <SDL_image.h>
 #include <SDL2_gfxprimitives.h>
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 #include <stdbool.h>
 #include "everything.h"
@@ -35,13 +36,15 @@ bool convertPixels(Uint32** pixels, Uint32*** pixelTex, int const SCREEN_WIDTH, 
 			(*pixels)[i + j * SCREEN_WIDTH] = (*pixelTex)[i][j];
 		}
 	}
+	return true;
 }
 
-bool isMouseinButton(int mouseX, int mouseY, Button button)
-{
-	if (button.x > mouseX)return false;
-	if (button.x + button.width < mouseX)return false;
-	if (button.y > mouseY)return false;
-	if (button.y + button.height < mouseY)return false;
-	return true;
+bool drawText(SDL_Renderer* gRenderer, SDL_Surface* sStrings, TTF_Font* font, SDL_Texture** tStrings, SDL_Rect* lStrings, SDL_Rect button, char text[], SDL_Color color) {
+	sStrings = TTF_RenderUTF8_Blended(font, text, color);
+	*tStrings = SDL_CreateTextureFromSurface(gRenderer, sStrings);
+	lStrings->x = (button.x + button.w / 2 - sStrings->w / 2);
+	lStrings->y = (button.y + button.h / 2 - sStrings->h / 2);
+	lStrings->w = sStrings->w;
+	lStrings->h = sStrings->h;
+	SDL_FreeSurface(sStrings);
 }

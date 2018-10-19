@@ -3,11 +3,12 @@
 #include <SDL2_gfxprimitives.h>
 #include <SDL_ttf.h>
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 #include <stdbool.h>
 #include "everything.h"
 
-int ANTMAiN(int argc, char ** argv)
+int main(int argc, char ** argv)
 {
 	//Width of the window
 	volatile int SCREEN_WIDTH = 960;
@@ -28,10 +29,10 @@ int ANTMAiN(int argc, char ** argv)
 	ant.heading = LEFT;
 	ant.lasttile = DARKWHITE;
 
-	Button startbutton;
-	startbutton.width = 150;
-	startbutton.height = 40;
-	startbutton.x = SCREEN_WIDTH / 2 - startbutton.width / 2;
+	SDL_Rect startbutton;
+	startbutton.w = 150;
+	startbutton.h = 40;
+	startbutton.x = SCREEN_WIDTH / 2 - startbutton.w / 2;
 	startbutton.y = 100;
 
 	SDL_Color sdlaltDARKWHITE = { 221,221,221 }, sdlaltORANGE = { 247,99,12 };
@@ -55,13 +56,16 @@ int ANTMAiN(int argc, char ** argv)
 	//The pixel renderer
 	SDL_Renderer *gRenderer = NULL;
 
+	Uint32 *pixels = NULL;
+	Uint32 **pixelTex = NULL;
+
 	SDL_Texture *tPixelTexture = NULL;
 	SDL_Texture *tMainMenu = NULL;
 	SDL_Texture *tStrings = NULL;
 	SDL_Surface *sStrings = NULL;
 	SDL_Rect lStrings = { 0,0,0,0 };
-	Uint32 *pixels = NULL;
-	Uint32 **pixelTex = NULL;
+
+	SDL_Point mouse = { 0,0 };
 
 	//Start up SDL and create window
 	if (!initSDL(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -84,19 +88,14 @@ int ANTMAiN(int argc, char ** argv)
 		SDL_Log("Failed to open image: %s", IMG_GetError());
 		exit(1);
 	}
+
 	//Render main menu
 	SDL_RenderClear(gRenderer);
 	SDL_RenderCopy(gRenderer, tMainMenu, NULL, NULL);
 	SDL_RenderPresent(gRenderer);
-	roundedBoxColor(gRenderer, startbutton.x, startbutton.y, startbutton.x + startbutton.width, startbutton.y + startbutton.height, 6, altGRAY);
-	sStrings = TTF_RenderUTF8_Blended(font, "Start", sdlaltORANGE);
-	tStrings = SDL_CreateTextureFromSurface(gRenderer, sStrings);
-	lStrings.x = (startbutton.x + startbutton.width / 2 - sStrings->w / 2);
-	lStrings.y = (startbutton.y + startbutton.height / 2 - sStrings->h / 2);
-	lStrings.w = sStrings->w;
-	lStrings.h = sStrings->h;
+	roundedBoxColor(gRenderer, startbutton.x, startbutton.y, startbutton.x + startbutton.w, startbutton.y + startbutton.h, 6, altGRAY);
+	drawText(gRenderer, &sStrings, font, &tStrings, &lStrings, startbutton, "Start", sdlaltORANGE);
 	SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
-	SDL_FreeSurface(sStrings);
 	SDL_RenderPresent(gRenderer);
 
 	SDL_Event event;
@@ -110,30 +109,23 @@ int ANTMAiN(int argc, char ** argv)
 		case SDL_QUIT:
 			quit = true;
 			break;
+		case SDL_MOUSEBUTTONDOWN:
+			if (event.button.button == SDL_BUTTON_LEFT)
+			{
+				SDL_GetMouseState(&mouse.x, &mouse.y);
+			}
+			break;
 		case SDL_MOUSEBUTTONUP:
 			if (event.button.button == SDL_BUTTON_LEFT)
 			{
-				//Get mouse position
-				int mouseX;
-				int mouseY;
-				SDL_GetMouseState(&mouseX, &mouseY);
-				printf("mousex: %d, mousey: %d", mouseX, mouseY);
-				if (isMouseinButton(mouseX, mouseY, startbutton)) start = true;
+				SDL_GetMouseState(&mouse.x, &mouse.y);
+				if (SDL_PointInRect(&mouse, &startbutton)) start = true;
+				//if (SDL_PointInRect(&mouse, &startbutton)) ;
 			}
 			break;
-			/*case SDL_MOUSEBUTTONDOWN:
-				if (event.button.button == SDL_BUTTON_LEFT)
-				{
-					//Get mouse position
-					int mouseX;
-					int mouseY;
-					SDL_GetMouseState(&mouseX, &mouseY);
-					printf("mousex: %d, mousey: %d", mouseX, mouseY);
-					if (isMouseinButton(mouseX, mouseY, startbutton)) start = true;
-				}
-				break;*/
 		}
 	}
+
 
 	//Initialize pixel textures
 	initPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);

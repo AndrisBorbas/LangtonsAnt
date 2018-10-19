@@ -3,13 +3,10 @@
 #include <SDL2_gfxprimitives.h>
 #include <SDL_ttf.h>
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
 #include <stdbool.h>
 
-//Stores buttons properties
-typedef struct Button {
-	int x, y, width, height;
-}Button;
 
 //Stores the properties of the ant
 typedef struct Ant {
@@ -54,9 +51,6 @@ bool initPixels(Uint32**, Uint32***, int const, int const);
 
 //Converts pixel texture to sdl pixel format
 bool convertPixels(Uint32**, Uint32***, int const, int const);
-
-//Check if mouse is inside a button
-bool isMouseinButton(int, int, Button);
 
 //Base tickrate of the simulation
 Uint32 ftick(Uint32, void*);
