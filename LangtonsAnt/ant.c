@@ -9,14 +9,14 @@
 
 bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, int const SCREEN_HEIGHT, int const SCALE, int const SPACING, int ANTMARGIN)
 {
-	if (!antgorithm(pixelTex, ant, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))return false;
 	(*lepes)++;
 	printf("%d. lepes: ", *lepes);
+	if (!antgorithm(pixelTex, ant, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))return false;
 
 	//printf("%d  %d\n", ant->y, ant->y - SCALE / 2 + SPACING);
 	//(*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + (ant->y - SCALE - SPACING + ANTMARGIN) * SCREEN_WIDTH] = 0xFF00FF00;
 
-	//invert last location
+	//color last location
 	for (int i = (ant->x - SCALE); i < (ant->x + SCALE - SPACING); i++)
 	{
 		for (int j = (ant->y - SCALE); j < (ant->y + SCALE - SPACING); j++)
@@ -32,6 +32,12 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, i
 				(*pixelTex)[i][j] = DARKWHITE;
 				break;
 			case DARKWHITE:
+				(*pixelTex)[i][j] = ORANGE;
+				break;
+			case ORANGE:
+				(*pixelTex)[i][j] = YELLOW;
+				break;
+			case YELLOW:
 				(*pixelTex)[i][j] = GRAY;
 				break;
 			default:
@@ -83,11 +89,11 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 
 	if (xpos < 0 || xpos > SCREEN_WIDTH || ypos < 0 || ypos > SCREEN_HEIGHT)return false;
 
-	//int position = xpos + (ypos * SCREEN_WIDTH);
 	if (((*pixelTex)[xpos][ypos]) == BLACK || ((*pixelTex)[xpos][ypos]) == GRAY)
 	{
 		ant->heading = ant->heading + 90;
 		if (ant->heading > 270) ant->heading = ant->heading - 360;
+		if (ant->heading < 0) ant->heading = ant->heading + 360;
 		ant->lasttile = GRAY;
 		printf("jobb\n");
 		return true;
@@ -95,8 +101,27 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 	if (((*pixelTex)[xpos][ypos]) == DARKWHITE)
 	{
 		ant->heading = ant->heading - 90;
+		if (ant->heading > 270) ant->heading = ant->heading - 360;
 		if (ant->heading < 0) ant->heading = ant->heading + 360;
 		ant->lasttile = DARKWHITE;
+		printf("jobb\n");
+		return true;
+	}
+	if (((*pixelTex)[xpos][ypos]) == ORANGE)
+	{
+		ant->heading = ant->heading + 90;
+		if (ant->heading > 270) ant->heading = ant->heading - 360;
+		if (ant->heading < 0) ant->heading = ant->heading + 360;
+		ant->lasttile = ORANGE;
+		printf("bal\n");
+		return true;
+	}
+	if (((*pixelTex)[xpos][ypos]) == YELLOW)
+	{
+		ant->heading = ant->heading - 90;
+		if (ant->heading > 270) ant->heading = ant->heading - 360;
+		if (ant->heading < 0) ant->heading = ant->heading + 360;
+		ant->lasttile = YELLOW;
 		printf("bal\n");
 		return true;
 	}

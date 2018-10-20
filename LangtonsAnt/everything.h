@@ -10,7 +10,7 @@
 
 //Stores the properties of the ant
 typedef struct Ant {
-	int x, y, heading, lasttile;
+	int x, y, heading, lasttile, currenttile;
 }Ant;
 
 enum AntHeading
@@ -26,7 +26,9 @@ enum HEXARGB
 	WHITE = 0xFFFFFFFF,
 	DARKWHITE = 0xFFDDDDDD,
 	GRAY = 0xFF333333,
-	BLACK = 0xFF000000
+	BLACK = 0xFF000000,
+	ORANGE = 0xFFFA6010,
+	YELLOW = 0xFFFFFF00
 };
 
 enum HEXRGBA
@@ -59,4 +61,4 @@ Uint32 ftick(Uint32, void*);
 bool antgorithm(Uint32***, Ant*, int const, int const, int const, int const, int);
 
 //move ant and invert past location
-bool moveAnt(Uint32***, Ant*, int const, int const, int const, int const);
+bool moveAnt(Uint32***, Ant*, int*, int const, int const, int const, int const, int);

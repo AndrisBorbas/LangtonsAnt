@@ -20,14 +20,12 @@ int main(int argc, char ** argv)
 	volatile int SPACING = 1;
 	//Number of pixels the ant is smaller than the grid (has to be at least 1)
 	volatile int ANTMARGIN = 1;
+	//The tickrate of the simulation in ms
+	volatile int mstick = 16;
 	//Number of steps made by the ant;
 	int lepes = 0;
 
-	Ant ant;
-	ant.x = SCREEN_WIDTH / 2;
-	ant.y = SCREEN_HEIGHT / 2;
-	ant.heading = LEFT;
-	ant.lasttile = DARKWHITE;
+	Ant ant = { SCREEN_WIDTH / 2 , SCREEN_HEIGHT / 2 , LEFT, DARKWHITE, BLACK };
 
 	SDL_Rect startbutton;
 	startbutton.w = 150;
@@ -131,7 +129,7 @@ int main(int argc, char ** argv)
 	initPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	//Create base tickrate
-	SDL_TimerID tick = SDL_AddTimer(16, ftick, NULL);
+	SDL_TimerID tick = SDL_AddTimer(mstick, ftick, NULL);
 
 
 
@@ -144,6 +142,22 @@ int main(int argc, char ** argv)
 		case SDL_QUIT:
 			quit = true;
 			break;
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym)
+			{
+			case SDLK_g:
+				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))
+				{
+					ERROR = true;
+					quit = true;
+				}
+				convertPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
+				break;
+			case SDLK_SPACE:
+				Running = true;
+				break;
+			}
 		case SDL_USEREVENT:
 			while (Running && !quit)
 			{
@@ -155,7 +169,7 @@ int main(int argc, char ** argv)
 				convertPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
 				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
 				if (!ERROR) {
-					SDL_RenderClear(gRenderer);
+					//SDL_RenderClear(gRenderer);
 					SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
 					SDL_RenderPresent(gRenderer);
 				}
@@ -175,22 +189,6 @@ int main(int argc, char ** argv)
 				}
 			}
 			break;
-		case SDL_KEYDOWN:
-			switch (event.key.keysym.sym)
-			{
-			case SDLK_g:
-				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))
-				{
-					ERROR = true;
-					quit = true;
-				}
-				convertPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
-				break;
-			case SDLK_SPACE:
-				Running = true;
-				break;
-			}
 		}
 		if (ERROR) {
 			while (!equit)
@@ -204,7 +202,7 @@ int main(int argc, char ** argv)
 		}
 		else
 		{
-			SDL_RenderClear(gRenderer);
+			//SDL_RenderClear(gRenderer);
 			SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
 			SDL_RenderPresent(gRenderer);
 		}
