@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include "everything.h"
 
-bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, int const SCREEN_HEIGHT, int const SCALE, int const SPACING, int ANTMARGIN)
+bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, int const SCREEN_HEIGHT, int const SCALE, int const SPACING, int const ANTMARGIN, int instructions)
 {
 	(*lepes)++;
 	printf("%d. lepes: ", *lepes);
@@ -100,7 +100,7 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 	}
 	if (((*pixelTex)[xpos][ypos]) == DARKWHITE)
 	{
-		ant->heading = ant->heading - 90;
+		ant->heading = ant->heading + 90;
 		if (ant->heading > 270) ant->heading = ant->heading - 360;
 		if (ant->heading < 0) ant->heading = ant->heading + 360;
 		ant->lasttile = DARKWHITE;
@@ -109,7 +109,7 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 	}
 	if (((*pixelTex)[xpos][ypos]) == ORANGE)
 	{
-		ant->heading = ant->heading + 90;
+		ant->heading = ant->heading - 90;
 		if (ant->heading > 270) ant->heading = ant->heading - 360;
 		if (ant->heading < 0) ant->heading = ant->heading + 360;
 		ant->lasttile = ORANGE;

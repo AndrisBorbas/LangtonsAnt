@@ -61,4 +61,4 @@ Uint32 ftick(Uint32, void*);
 bool antgorithm(Uint32***, Ant*, int const, int const, int const, int const, int);
 
 //move ant and invert past location
-bool moveAnt(Uint32***, Ant*, int*, int const, int const, int const, int const, int);
+bool moveAnt(Uint32***, Ant*, int*, int const, int const, int const, int const, int const, int);

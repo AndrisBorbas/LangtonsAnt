@@ -14,14 +14,18 @@ int main(int argc, char ** argv)
 	volatile int SCREEN_WIDTH = 960;
 	//Height of the window
 	volatile int SCREEN_HEIGHT = 960;
-	//Number of pixels per grid square
-	volatile int SCALE = 4;
+	//Number of pixels per grid square (has to be at least 3 or the ant wont be visible, but it will still work)
+	volatile int SCALE = 1;
 	//Number of pixels between grid squares
-	volatile int SPACING = 1;
+	volatile int SPACING = 0;
 	//Number of pixels the ant is smaller than the grid (has to be at least 1)
 	volatile int ANTMARGIN = 1;
 	//The tickrate of the simulation in ms
 	volatile int mstick = 16;
+
+	char instructions[]="RRLL";
+
+	int instructnum = strlen(instructions);
 	//Number of steps made by the ant;
 	int lepes = 0;
 
@@ -146,7 +150,7 @@ int main(int argc, char ** argv)
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_g:
-				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))
+				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN, instructnum))
 				{
 					ERROR = true;
 					quit = true;
@@ -161,7 +165,7 @@ int main(int argc, char ** argv)
 		case SDL_USEREVENT:
 			while (Running && !quit)
 			{
-				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))
+				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN, instructnum))
 				{
 					ERROR = true;
 					quit = true;
