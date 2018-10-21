@@ -23,9 +23,10 @@ int main(int argc, char ** argv)
 	//The tickrate of the simulation in ms
 	volatile int mstick = 16;
 
-	volatile char* instructions = NULL;
+	volatile char* instructions = malloc(5*sizeof(char));
 
-	int instructnum = strlen(*instructions);
+
+	int instructnum = strlen(instructions);
 	//Number of steps made by the ant;
 	int lepes = 0;
 
