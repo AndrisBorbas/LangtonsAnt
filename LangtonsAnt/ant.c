@@ -94,7 +94,7 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 		ant->heading = ant->heading + 90;
 		if (ant->heading > 270) ant->heading = ant->heading - 360;
 		if (ant->heading < 0) ant->heading = ant->heading + 360;
-		ant->lasttile = GRAY;
+		ant->lasttile = 0;
 		printf("jobb\n");
 		return true;
 	}
@@ -103,7 +103,7 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 		ant->heading = ant->heading + 90;
 		if (ant->heading > 270) ant->heading = ant->heading - 360;
 		if (ant->heading < 0) ant->heading = ant->heading + 360;
-		ant->lasttile = DARKWHITE;
+		ant->lasttile = 1;
 		printf("jobb\n");
 		return true;
 	}
@@ -112,7 +112,7 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 		ant->heading = ant->heading - 90;
 		if (ant->heading > 270) ant->heading = ant->heading - 360;
 		if (ant->heading < 0) ant->heading = ant->heading + 360;
-		ant->lasttile = ORANGE;
+		ant->lasttile = 2;
 		printf("bal\n");
 		return true;
 	}
@@ -121,7 +121,7 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 		ant->heading = ant->heading - 90;
 		if (ant->heading > 270) ant->heading = ant->heading - 360;
 		if (ant->heading < 0) ant->heading = ant->heading + 360;
-		ant->lasttile = YELLOW;
+		ant->lasttile = 3;
 		printf("bal\n");
 		return true;
 	}

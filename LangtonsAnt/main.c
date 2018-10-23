@@ -10,26 +10,40 @@
 
 int main(int argc, char ** argv)
 {
+	FILE *rDefConf;
+	FILE *wDefConf;
+
+	char test[1000] = "";
+
 	//Width of the window
 	volatile int SCREEN_WIDTH = 960;
 	//Height of the window
 	volatile int SCREEN_HEIGHT = 960;
 	//Number of pixels per grid square (has to be at least 3 or the ant wont be visible, but it will still work)
-	volatile int SCALE = 1;
+	volatile int SCALE = 4;
 	//Number of pixels between grid squares
-	volatile int SPACING = 0;
-	//Number of pixels the ant is smaller than the grid (has to be at least 1)
-	volatile int ANTMARGIN = 1;
+	volatile int SPACING = 1;
+	//Number of pixels the ant is smaller than the grid (has to be at least 1, can't be more than SCALE)
+	int const ANTMARGIN = 1;
 	//The tickrate of the simulation in ms
 	volatile int mstick = 16;
 
-	volatile char* instructions = malloc(5*sizeof(char));
+	volatile char* instructions = malloc(5 * sizeof(char));
+
 
 
 	int instructnum = strlen(instructions);
 	//Number of steps made by the ant;
 	int lepes = 0;
 
+	wDefConf = fopen("default.cfg", "r+");
+
+	while ((strstr(test,"endconfig;"))==NULL) 
+	{
+		fscanf(wDefConf, "%s", &test);
+		printf("%s\n", test);
+		if (strcmp(test, "SCREEN_WIDTH") == 0)printf("hek");
+	}
 	Ant ant = { SCREEN_WIDTH / 2 , SCREEN_HEIGHT / 2 , LEFT, DARKWHITE, BLACK };
 
 	SDL_Rect startbutton;
@@ -168,6 +182,7 @@ int main(int argc, char ** argv)
 			{
 				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN, instructnum))
 				{
+					printf("Error while trying to move ant: %s", SDL_GetError());
 					ERROR = true;
 					quit = true;
 				}

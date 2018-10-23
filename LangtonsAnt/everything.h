@@ -10,7 +10,7 @@
 
 //Stores the properties of the ant
 typedef struct Ant {
-	int x, y, heading, lasttile, currenttile;
+	int x, y, heading, lasttile, currenttile, turn;
 }Ant;
 
 enum AntHeading
