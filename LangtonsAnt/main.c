@@ -10,10 +10,9 @@
 
 int main(int argc, char ** argv)
 {
-	FILE *rDefConf;
 	FILE *wDefConf;
 
-	char test[1000] = "";
+	char buffer[1000] = "";
 
 	//Width of the window
 	volatile int SCREEN_WIDTH = 960;
@@ -38,12 +37,22 @@ int main(int argc, char ** argv)
 
 	wDefConf = fopen("default.cfg", "r+");
 
-	while ((strstr(test,"endconfig;"))==NULL) 
+	while ((strstr(buffer, "endconfig;")) == NULL)
 	{
-		fscanf(wDefConf, "%s", &test);
-		printf("%s\n", test);
-		if (strcmp(test, "SCREEN_WIDTH") == 0)printf("hek");
+		fscanf(wDefConf, "%s", &buffer);
+		if (buffer[0] == '/')continue;
+
+		if (buffer[0] == '#') {
+			loadFromConfig(wDefConf, buffer, &SCREEN_WIDTH, "SCREEN_WIDTH");
+			loadFromConfig(wDefConf, buffer, &SCREEN_HEIGHT, "SCREEN_HEIGHT");
+			loadFromConfig(wDefConf, buffer, &SCALE, "SCALE");
+			loadFromConfig(wDefConf, buffer, &SPACING, "SPACING");
+			loadFromConfig(wDefConf, buffer, &ANTMARGIN, "ANTMARGIN");
+			loadFromConfig(wDefConf, buffer, &mstick, "mstick");
+		}
 	}
+	printf("\n%d", SCREEN_WIDTH);
+
 	Ant ant = { SCREEN_WIDTH / 2 , SCREEN_HEIGHT / 2 , LEFT, DARKWHITE, BLACK };
 
 	SDL_Rect startbutton;

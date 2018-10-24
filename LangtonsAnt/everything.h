@@ -54,6 +54,9 @@ bool initPixels(Uint32**, Uint32***, int const, int const);
 //Converts pixel texture to sdl pixel format
 bool convertPixels(Uint32**, Uint32***, int const, int const);
 
+//Loads the configuration into the variables
+void loadFromConfig(FILE*, char*, int*, char*);
+
 //Base tickrate of the simulation
 Uint32 ftick(Uint32, void*);
 
