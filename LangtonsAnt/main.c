@@ -25,13 +25,10 @@ int main(int argc, char ** argv)
 	//Number of pixels the ant is smaller than the grid (has to be at least 1, can't be more than SCALE)
 	int const ANTMARGIN = 1;
 	//The tickrate of the simulation in ms
-	volatile int mstick = 16;
+	volatile int MSTICK = 16;
+	//Instructionset for the ant
+	volatile char instructionset[19] = "LR";
 
-	volatile char* instructions = malloc(5 * sizeof(char));
-
-
-
-	int instructnum = strlen(instructions);
 	//Number of steps made by the ant;
 	int lepes = 0;
 
@@ -43,17 +40,26 @@ int main(int argc, char ** argv)
 		if (buffer[0] == '/')continue;
 
 		if (buffer[0] == '#') {
-			loadFromConfig(wDefConf, buffer, &SCREEN_WIDTH, "SCREEN_WIDTH");
-			loadFromConfig(wDefConf, buffer, &SCREEN_HEIGHT, "SCREEN_HEIGHT");
-			loadFromConfig(wDefConf, buffer, &SCALE, "SCALE");
-			loadFromConfig(wDefConf, buffer, &SPACING, "SPACING");
-			loadFromConfig(wDefConf, buffer, &ANTMARGIN, "ANTMARGIN");
-			loadFromConfig(wDefConf, buffer, &mstick, "mstick");
+			loadintFromConfig(wDefConf, buffer, &SCREEN_WIDTH, "SCREEN_WIDTH");
+			loadintFromConfig(wDefConf, buffer, &SCREEN_HEIGHT, "SCREEN_HEIGHT");
+			loadintFromConfig(wDefConf, buffer, &SCALE, "SCALE");
+			loadintFromConfig(wDefConf, buffer, &SPACING, "SPACING");
+			loadintFromConfig(wDefConf, buffer, &ANTMARGIN, "ANTMARGIN");
+			loadintFromConfig(wDefConf, buffer, &MSTICK, "MSTICK");
+			loadcharFromConfig(wDefConf, buffer, &instructionset, "INSTRUCTIONSET");
 		}
 	}
-	printf("\n%d", SCREEN_WIDTH);
+	int instructnum = strlen(instructionset);
 
-	Ant ant = { SCREEN_WIDTH / 2 , SCREEN_HEIGHT / 2 , LEFT, DARKWHITE, BLACK };
+	Ant ant = { SCREEN_WIDTH / 2 , SCREEN_HEIGHT / 2 , LEFT, 0, BLACK };
+	for (int i = 0; i < 19; i++) {
+		if (instructionset[i] == '\0')break;
+
+		if (instructionset[i] == 'R')ant.turn[i] = 90;
+		if (instructionset[i] == 'r')ant.turn[i] = 90;
+		if (instructionset[i] == 'l')ant.turn[i] = -90;
+		if (instructionset[i] == 'L')ant.turn[i] = -90;
+	}
 
 	SDL_Rect startbutton;
 	startbutton.w = 150;
@@ -157,7 +163,7 @@ int main(int argc, char ** argv)
 	initPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	//Create base tickrate
-	SDL_TimerID tick = SDL_AddTimer(mstick, ftick, NULL);
+	SDL_TimerID tick = SDL_AddTimer(MSTICK, ftick, NULL);
 
 
 
@@ -174,10 +180,13 @@ int main(int argc, char ** argv)
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_g:
-				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN, instructnum))
-				{
-					ERROR = true;
-					quit = true;
+				for (int i = 0; i < 104; i++) {
+					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN, instructnum, instructionset))
+					{
+						ERROR = true;
+						quit = true;
+						break;
+					}
 				}
 				convertPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
 				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
@@ -189,7 +198,7 @@ int main(int argc, char ** argv)
 		case SDL_USEREVENT:
 			while (Running && !quit)
 			{
-				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN, instructnum))
+				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN, instructnum, instructionset))
 				{
 					printf("Error while trying to move ant: %s", SDL_GetError());
 					ERROR = true;

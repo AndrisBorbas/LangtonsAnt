@@ -49,7 +49,7 @@ bool drawText(SDL_Renderer* gRenderer, SDL_Surface* sStrings, TTF_Font* font, SD
 	SDL_FreeSurface(sStrings);
 }
 
-void loadFromConfig(FILE* wDefConf, char* buffer, int* variable, char* variableName) {
+void loadintFromConfig(FILE* wDefConf, char* buffer, int* variable, char* variableName) {
 	char ctemp[52] = "#";
 	strcat(ctemp, variableName);
 	int temp=0;
@@ -58,5 +58,17 @@ void loadFromConfig(FILE* wDefConf, char* buffer, int* variable, char* variableN
 		fscanf(wDefConf, "%s%d", &buffer, &temp);
 		printf("%d\n", temp);
 		*variable = temp;
+	}
+}
+
+void loadcharFromConfig(FILE* wDefConf, char* buffer, char* variable, char* variableName) {
+	char ctemp[52] = "#";
+	strcat(ctemp, variableName);
+	char temp[52] = "";
+	if (strcmp(buffer, ctemp) == 0)
+	{
+		fscanf(wDefConf, "%s%s", &buffer, &temp);
+		printf("%s\n", temp);
+		strcpy(variable, temp);
 	}
 }

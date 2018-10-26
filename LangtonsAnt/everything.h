@@ -10,7 +10,7 @@
 
 //Stores the properties of the ant
 typedef struct Ant {
-	int x, y, heading, lasttile, currenttile, turn;
+	int x, y, heading, lasttile, currenttile, turn[19];
 }Ant;
 
 enum AntHeading
@@ -22,13 +22,28 @@ enum AntHeading
 };
 
 enum HEXARGB
-{
-	WHITE = 0xFFFFFFFF,
-	DARKWHITE = 0xFFDDDDDD,
-	GRAY = 0xFF333333,
+{	
 	BLACK = 0xFF000000,
-	ORANGE = 0xFFFA6010,
-	YELLOW = 0xFFFFFF00
+	WHITE = 0xFFFFFFFF,
+	MAROON = 0xFF800000,
+	BROWN = 0xFF9A6324,
+	OLIVE = 0xFF808000,
+	TEAL = 0xFF469990,
+	NAVY = 0xFF000075,
+	RED = 0xFFE6194B,
+	ORANGE = 0xFFF58231,
+	YELLOW= 0xFFFFE119,
+	LIME = 0xFFBFEF45,
+	GREEN = 0xFF3CB44B,
+	CYAN = 0xFF42D4F4,
+	BLUE = 0xFF4363D8,
+	PURPLE = 0xFF911EB4,
+	MAGENTA = 0xFFF032E6,
+	PINK = 0xFFFABEBE,
+	APRICOT = 0xFFFFD8B1,
+	BEIGE = 0xFFFFFAC8,
+	MINT = 0xFFAAFFC3,
+	LAVENDER = 0xFFE6BEFF
 };
 
 enum HEXRGBA
@@ -54,14 +69,20 @@ bool initPixels(Uint32**, Uint32***, int const, int const);
 //Converts pixel texture to sdl pixel format
 bool convertPixels(Uint32**, Uint32***, int const, int const);
 
-//Loads the configuration into the variables
-void loadFromConfig(FILE*, char*, int*, char*);
+//Loads the configuration into int variables
+void loadintFromConfig(FILE*, char*, int*, char*);
+
+//Loads the configuration into char variables
+void loadcharFromConfig(FILE*, char*, char*, char*);
 
 //Base tickrate of the simulation
 Uint32 ftick(Uint32, void*);
+
+//Turn the ant into the right direction
+bool turnAnt(Ant * ant);
 
 //The alogorithm for the ants movement
 bool antgorithm(Uint32***, Ant*, int const, int const, int const, int const, int);
 
 //move ant and invert past location
-bool moveAnt(Uint32***, Ant*, int*, int const, int const, int const, int const, int const, int);
+bool moveAnt(Uint32***, Ant*, int*, int const, int const, int const, int const, int const, int, char*);
