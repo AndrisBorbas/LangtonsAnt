@@ -95,9 +95,6 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, i
 		}
 	}
 
-
-
-	//printf("%d ", ant->heading);
 	switch (ant->heading)
 	{
 	case UP:
@@ -115,7 +112,7 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, i
 	default:
 		break;
 	}
-	//printf("%d\n", ant->heading);
+
 	for (int i = (ant->x - SCALE + ANTMARGIN); i < (ant->x + SCALE - SPACING - ANTMARGIN); i++)
 	{
 		for (int j = (ant->y - SCALE + ANTMARGIN); j < (ant->y + SCALE - SPACING - ANTMARGIN); j++)
@@ -125,13 +122,13 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, i
 				printf("ERROR: ant out of bounds at x=%d, y=%d.", i, j);
 				return false;
 			}
-			(*pixelTex)[i][j] = 0xFFFF0000;
+			(*pixelTex)[i][j] = WHITE;
 		}
 	}
 	return true;
 }
 
-bool turnAnt(Ant * ant, int tile)
+bool turnAnt(Ant* ant, int tile)
 {
 	ant->currenttile = tile;
 	ant->heading = ant->heading + ant->turn[ant->currenttile];
@@ -145,6 +142,12 @@ bool turnAnt(Ant * ant, int tile)
 	case -90:
 		printf("bal\n");
 		break;
+	case 0:
+		printf("elore\n");
+		break;
+	case 180:
+		printf("vissza\n");
+		break;
 	}
 	return true;
 }
@@ -156,7 +159,8 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 
 	if (xpos < 0 || xpos > SCREEN_WIDTH || ypos < 0 || ypos > SCREEN_HEIGHT)return false;
 
-	switch ((*pixelTex)[xpos][ypos]) {
+	switch ((*pixelTex)[xpos][ypos]) 
+	{
 	case BLACK:
 		return turnAnt(ant, 0);
 	case MAROON:

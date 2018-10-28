@@ -10,7 +10,7 @@
 
 //Stores the properties of the ant
 typedef struct Ant {
-	int x, y, heading, lasttile, currenttile, turn[19];
+	int x, y, heading, state, lasttile, currenttile, turn[18];
 }Ant;
 
 enum AntHeading
@@ -79,7 +79,7 @@ void loadcharFromConfig(FILE*, char*, char*, char*);
 Uint32 ftick(Uint32, void*);
 
 //Turn the ant into the right direction
-bool turnAnt(Ant * ant);
+bool turnAnt(Ant*, int);
 
 //The alogorithm for the ants movement
 bool antgorithm(Uint32***, Ant*, int const, int const, int const, int const, int);

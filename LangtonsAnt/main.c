@@ -10,9 +10,11 @@
 
 int main(int argc, char ** argv)
 {
+	//The config file
 	FILE *wDefConf;
+	wDefConf = fopen("default.cfg", "r+");
 
-	char buffer[1000] = "";
+	char buffer[52] = "";
 
 	//Width of the window
 	volatile int SCREEN_WIDTH = 960;
@@ -32,7 +34,7 @@ int main(int argc, char ** argv)
 	//Number of steps made by the ant;
 	int lepes = 0;
 
-	wDefConf = fopen("default.cfg", "r+");
+
 
 	while ((strstr(buffer, "endconfig;")) == NULL)
 	{
@@ -51,16 +53,31 @@ int main(int argc, char ** argv)
 	}
 	int instructnum = strlen(instructionset);
 
-	Ant ant = { SCREEN_WIDTH / 2 , SCREEN_HEIGHT / 2 , LEFT, 0, BLACK };
+	//The ant
+	Ant ant = { SCREEN_WIDTH / 2 , SCREEN_HEIGHT / 2 , LEFT, 0, 0, BLACK };
 	for (int i = 0; i < 19; i++) {
 		if (instructionset[i] == '\0')break;
-
-		if (instructionset[i] == 'R')ant.turn[i] = 90;
-		if (instructionset[i] == 'r')ant.turn[i] = 90;
-		if (instructionset[i] == 'l')ant.turn[i] = -90;
-		if (instructionset[i] == 'L')ant.turn[i] = -90;
+		switch (instructionset[i]) {
+		case 'R':
+		case 'r':
+			ant.turn[i] = 90;
+			break;
+		case 'L':
+		case 'l':
+			ant.turn[i] = -90;
+			break;
+		case 'N':
+		case 'n':
+			ant.turn[i] = 0;
+			break;
+		case 'U':
+		case 'u':
+			ant.turn[i] = 180;
+			break;
+		}
 	}
 
+	//Click to start
 	SDL_Rect startbutton;
 	startbutton.w = 150;
 	startbutton.h = 40;
@@ -79,8 +96,6 @@ int main(int argc, char ** argv)
 	bool Running = true;
 	//Is there an error
 	bool ERROR = false;
-
-	bool leftMouseButtonDown = false;
 
 	//The window we'll be rendering to
 	SDL_Window *gWindow = NULL;
@@ -181,6 +196,30 @@ int main(int argc, char ** argv)
 			{
 			case SDLK_g:
 				for (int i = 0; i < 104; i++) {
+					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN, instructnum, instructionset))
+					{
+						ERROR = true;
+						quit = true;
+						break;
+					}
+				}
+				convertPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
+				break;
+			case SDLK_h:
+				for (int i = 0; i < 1040; i++) {
+					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN, instructnum, instructionset))
+					{
+						ERROR = true;
+						quit = true;
+						break;
+					}
+				}
+				convertPixels(&pixels, &pixelTex, SCREEN_WIDTH, SCREEN_HEIGHT);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN_WIDTH * sizeof(Uint32));
+				break;
+			case SDLK_j:
+				for (int i = 0; i < 10400; i++) {
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN, instructnum, instructionset))
 					{
 						ERROR = true;
