@@ -1,3 +1,5 @@
+//Copyright 2018, Andris Borbás, all rights reserved.
+
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL2_gfxprimitives.h>
