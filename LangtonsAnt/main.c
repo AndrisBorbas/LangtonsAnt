@@ -1,3 +1,5 @@
+// Copyright 2018 Andirs Borbás, All Rights Reserved.
+
 #include "main.h"
 
 int main(int argc, char ** argv)
