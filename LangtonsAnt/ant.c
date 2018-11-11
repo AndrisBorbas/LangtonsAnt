@@ -1,19 +1,9 @@
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL2_gfxprimitives.h>
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-#include <stdbool.h>
-#include "everything.h"
+#include "ant.h"
 
 bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, int const SCREEN_HEIGHT, int const SCALE, int const SPACING, int const ANTMARGIN, int instructnum, char* instructionset)
 {
 	(*lepes)++;
 	printf("%d. lepes: ", *lepes);
-
-	//ant->lasttile = (ant->lasttile + instructnum) % instructnum;
-	//if (ant->lasttile == instructnum)ant->lasttile = 3;
 
 	if (!antgorithm(pixelTex, ant, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))return false;
 

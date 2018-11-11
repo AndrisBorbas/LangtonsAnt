@@ -1,11 +1,4 @@
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL2_gfxprimitives.h>
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-#include <stdbool.h>
-#include "everything.h"
+#include "SDLHandler.h"
 
 bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, int const SCREEN_WIDTH, int const SCREEN_HEIGHT)
 {

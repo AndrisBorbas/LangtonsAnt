@@ -1,18 +1,22 @@
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL2_gfxprimitives.h>
-#include <SDL_ttf.h>
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-#include <stdbool.h>
-#include "everything.h"
+#include "main.h"
 
 int main(int argc, char ** argv)
 {
+	char filename[52] = "config.ini"; 
+
+	if (argc > 1)strcpy(filename, argv[1]);
+
+	Uint64 NOW = SDL_GetPerformanceCounter();
+	Uint64 LAST = 0;
+	double deltaTime = 0;
+
 	//The config file
 	FILE *wDefConf;
-	wDefConf = fopen("default.cfg", "r+");
+	wDefConf = fopen(filename, "r+");
+	if (wDefConf == NULL) {
+		printf("Could not open config file.");
+		return 30;
+	}
 
 	char buffer[52] = "";
 
@@ -78,13 +82,20 @@ int main(int argc, char ** argv)
 	}
 
 	//Click to start
-	SDL_Rect startbutton;
-	startbutton.w = 150;
-	startbutton.h = 40;
-	startbutton.x = SCREEN_WIDTH / 2 - startbutton.w / 2;
-	startbutton.y = 100;
+	SDL_Rect StartButton;
+	StartButton.w = 252;
+	StartButton.h = 80;
+	StartButton.x = SCREEN_WIDTH / 2 - StartButton.w / 2;
+	StartButton.y = 25;
 
-	SDL_Color sdlaltDARKWHITE = { 221,221,221 }, sdlaltORANGE = { 247,99,12 };
+	SDL_Rect StartButtonStroke;
+	int Strokesize = 2;
+	StartButtonStroke.w = StartButton.w + (Strokesize*2);
+	StartButtonStroke.h = StartButton.h + (Strokesize * 2);
+	StartButtonStroke.x = StartButton.x - Strokesize;
+	StartButtonStroke.y = StartButton.y - Strokesize;
+
+
 
 	//Handle normal quit
 	bool quit = false;
@@ -121,16 +132,25 @@ int main(int argc, char ** argv)
 		exit(1);
 	}
 
-	//Load font
-	TTF_Font *font = TTF_OpenFont("ExodusDemo-Striped.otf", 32);
-	if (!font) {
+	//Load StartFont
+	TTF_Font *StartFont = TTF_OpenFont("ExodusDemo-Striped.otf", 60);
+	if (!StartFont) 
+	{
+		SDL_Log("Failed to open font: %s", TTF_GetError());
+		exit(1);
+	}
+
+	//Load StartFont
+	TTF_Font *MenuFont = TTF_OpenFont("ExodusDemo-Striped.otf", 40);
+	if (!MenuFont) 
+	{
 		SDL_Log("Failed to open font: %s", TTF_GetError());
 		exit(1);
 	}
 
 	//Load main menu background
 	tMainMenu = IMG_LoadTexture(gRenderer, "MainMenu.png");
-	if (tMainMenu == NULL)
+	if (!tMainMenu)
 	{
 		SDL_Log("Failed to open image: %s", IMG_GetError());
 		exit(1);
@@ -140,8 +160,9 @@ int main(int argc, char ** argv)
 	SDL_RenderClear(gRenderer);
 	SDL_RenderCopy(gRenderer, tMainMenu, NULL, NULL);
 	SDL_RenderPresent(gRenderer);
-	roundedBoxColor(gRenderer, startbutton.x, startbutton.y, startbutton.x + startbutton.w, startbutton.y + startbutton.h, 6, altGRAY);
-	drawText(gRenderer, &sStrings, font, &tStrings, &lStrings, startbutton, "Start", sdlaltORANGE);
+	roundedBoxColor(gRenderer, StartButtonStroke.x, StartButtonStroke.y, StartButtonStroke.x + StartButtonStroke.w, StartButtonStroke.y + StartButtonStroke.h, 6, altDARKWHITE);
+	roundedBoxColor(gRenderer, StartButton.x, StartButton.y, StartButton.x + StartButton.w, StartButton.y + StartButton.h, 6, altGRAY);
+	drawText(gRenderer, &sStrings, StartFont, &tStrings, &lStrings, StartButton, "Start", TextORANGE);
 	SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 	SDL_RenderPresent(gRenderer);
 
@@ -166,8 +187,8 @@ int main(int argc, char ** argv)
 			if (event.button.button == SDL_BUTTON_LEFT)
 			{
 				SDL_GetMouseState(&mouse.x, &mouse.y);
-				if (SDL_PointInRect(&mouse, &startbutton)) start = true;
-				//if (SDL_PointInRect(&mouse, &startbutton)) ;
+				if (SDL_PointInRect(&mouse, &StartButton)) start = true;
+				//if (SDL_PointInRect(&mouse, &StartButton)) ;
 			}
 			break;
 		}
@@ -184,6 +205,13 @@ int main(int argc, char ** argv)
 
 	while (!quit)
 	{
+		/*
+		LAST = NOW;
+		NOW = SDL_GetPerformanceCounter();
+
+		deltaTime = (double)((NOW - LAST) * 1000 / (double)SDL_GetPerformanceFrequency());
+		printf("\n%g\n\n", deltaTime);*/
+
 		SDL_WaitEvent(&event);
 
 		switch (event.type)
@@ -270,6 +298,9 @@ int main(int argc, char ** argv)
 		if (ERROR) {
 			while (!equit)
 			{
+				SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
+				SDL_RenderPresent(gRenderer);
+
 				SDL_WaitEvent(&event);
 				if (event.type == SDL_QUIT)
 				{
