@@ -14,9 +14,9 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, i
 	{
 		for (int j = (ant->y - SCALE); j < (ant->y + SCALE - SPACING); j++)
 		{
-			if (i<0 || i>SCREEN_WIDTH || j<0 || j>SCREEN_HEIGHT)
+			if (i<0 || i>=SCREEN_WIDTH || j<0 || j>=SCREEN_HEIGHT)
 			{
-				printf("ERROR: ant out of bounds at x=%d, y=%d.", i, j);
+				printf("ERROR: last location out of bounds at x=%d, y=%d.\n", i, j);
 				return false;
 			}
 
@@ -107,9 +107,9 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, i
 	{
 		for (int j = (ant->y - SCALE + ANTMARGIN); j < (ant->y + SCALE - SPACING - ANTMARGIN); j++)
 		{
-			if (i<0 || i>SCREEN_WIDTH || j<0 || j>SCREEN_HEIGHT)
+			if (i<0 || i>=SCREEN_WIDTH || j<0 || j>=SCREEN_HEIGHT)
 			{
-				printf("ERROR: ant out of bounds at x=%d, y=%d.", i, j);
+				printf("ERROR: ant out of bounds at x=%d, y=%d.\n", i, j);
 				return false;
 			}
 			(*pixelTex)[i][j] = WHITE;
@@ -147,7 +147,11 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 	int xpos = (ant->x - SCALE - SPACING + ANTMARGIN);
 	int ypos = (ant->y - SCALE - SPACING + ANTMARGIN);
 
-	if (xpos < 0 || xpos > SCREEN_WIDTH || ypos < 0 || ypos > SCREEN_HEIGHT)return false;
+	if (xpos < 0 || xpos > SCREEN_WIDTH || ypos < 0 || ypos > SCREEN_HEIGHT)
+	{
+		printf("Error: antgorithm out of bounds at x=%d, y=%d.\nSDL Error: %s", xpos, ypos, SDL_GetError());
+		return false;
+	}
 
 	switch ((*pixelTex)[xpos][ypos]) 
 	{
@@ -192,5 +196,6 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const 
 	case LAVENDER:
 		return turnAnt(ant, 18);
 	}
+	printf("Error: antgorithm couldn't find matching color.\nSDL Error: %s", SDL_GetError());
 	return false;
 }
