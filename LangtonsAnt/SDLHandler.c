@@ -47,8 +47,9 @@ bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixe
 
 bool initTextures(SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN) 
 {
-	if (!tPixelTexture)SDL_DestroyTexture(*tPixelTexture);
-	if (!tMainMenu)SDL_DestroyTexture(*tMainMenu);
+	//Destroy previous texture
+	if (*tPixelTexture)SDL_DestroyTexture(*tPixelTexture);
+	if (*tMainMenu)SDL_DestroyTexture(*tMainMenu);
 
 	//Initialize screen texture
 	*tPixelTexture = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN.w, SCREEN.h);
