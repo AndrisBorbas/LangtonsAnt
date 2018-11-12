@@ -1,11 +1,11 @@
 #include "ant.h"
 
-bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, int const SCREEN_HEIGHT, int const SCALE, int const SPACING, int const ANTMARGIN, int instructnum, char* instructionset)
+bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, SDL_Rect const SCREEN, int const SCALE, int const SPACING, int const ANTMARGIN, int instructnum, char* instructionset)
 {
 	(*lepes)++;
 	printf("%d. lepes: ", *lepes);
 
-	if (!antgorithm(pixelTex, ant, SCREEN_WIDTH, SCREEN_HEIGHT, SCALE, SPACING, ANTMARGIN))return false;
+	if (!antgorithm(pixelTex, ant, SCREEN, SCALE, SPACING, ANTMARGIN))return false;
 
 	if (ant->lasttile == instructnum-1)ant->lasttile = 18;
 
@@ -14,7 +14,7 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, i
 	{
 		for (int j = (ant->y - SCALE); j < (ant->y + SCALE - SPACING); j++)
 		{
-			if (i<0 || i>=SCREEN_WIDTH || j<0 || j>=SCREEN_HEIGHT)
+			if (i<0 || i>=SCREEN.w || j<0 || j>=SCREEN.h)
 			{
 				printf("ERROR: last location out of bounds at x=%d, y=%d.\n", i, j);
 				return false;
@@ -107,7 +107,7 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, int const SCREEN_WIDTH, i
 	{
 		for (int j = (ant->y - SCALE + ANTMARGIN); j < (ant->y + SCALE - SPACING - ANTMARGIN); j++)
 		{
-			if (i<0 || i>=SCREEN_WIDTH || j<0 || j>=SCREEN_HEIGHT)
+			if (i<0 || i>=SCREEN.w || j<0 || j>=SCREEN.h)
 			{
 				printf("ERROR: ant out of bounds at x=%d, y=%d.\n", i, j);
 				return false;
@@ -142,12 +142,12 @@ bool turnAnt(Ant* ant, int tile)
 	return true;
 }
 
-bool antgorithm(Uint32*** pixelTex, Ant* ant, int const SCREEN_WIDTH, int const SCREEN_HEIGHT, int const SCALE, int const SPACING, int ANTMARGIN) {
+bool antgorithm(Uint32*** pixelTex, Ant* ant, SDL_Rect const SCREEN, int const SCALE, int const SPACING, int ANTMARGIN) {
 	//printf("%u\n%u\n%u\n\n", ((*pixels)[(ant->x - SCALE - SPACING + ANTMARGIN) + ((ant->y - SCALE - SPACING + ANTMARGIN)*SCREEN_WIDTH)]), BLACK, 0xFF000000);
 	int xpos = (ant->x - SCALE - SPACING + ANTMARGIN);
 	int ypos = (ant->y - SCALE - SPACING + ANTMARGIN);
 
-	if (xpos < 0 || xpos > SCREEN_WIDTH || ypos < 0 || ypos > SCREEN_HEIGHT)
+	if (xpos < 0 || xpos > SCREEN.w || ypos < 0 || ypos > SCREEN.h)
 	{
 		printf("Error: antgorithm out of bounds at x=%d, y=%d.\nSDL Error: %s", xpos, ypos, SDL_GetError());
 		return false;

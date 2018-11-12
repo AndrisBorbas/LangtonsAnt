@@ -7,7 +7,10 @@
 void close(Uint32**, Uint32***, SDL_Window**, SDL_Renderer**, SDL_Texture**);
 
 //Starts up SDL and creates window
-bool initSDL(SDL_Window**, SDL_Renderer**, SDL_Texture**, SDL_Texture**, int const, int const);
+bool initSDL(SDL_Window**, SDL_Renderer**, SDL_Texture**, SDL_Texture**, SDL_Rect const );
+
+//Initialize textures
+bool initTextures(SDL_Renderer**, SDL_Texture**, SDL_Texture**, SDL_Rect const);
 
 //Initializes the pixel arrays
-bool initPixels(Uint32**, Uint32***, int const, int const);
+bool initPixels(Uint32**, Uint32***, SDL_Rect const);

@@ -20,7 +20,7 @@ enum AntHeading
 bool turnAnt(Ant*, int);
 
 //The alogorithm for the ants movement
-bool antgorithm(Uint32***, Ant*, int const, int const, int const, int const, int);
+bool antgorithm(Uint32***, Ant*, SDL_Rect const, int const, int const, int);
 
 //move ant and invert past location
-bool moveAnt(Uint32***, Ant*, int*, int const, int const, int const, int const, int const, int, char*);
+bool moveAnt(Uint32***, Ant*, int*, SDL_Rect const, int const, int const, int const, int, char*);

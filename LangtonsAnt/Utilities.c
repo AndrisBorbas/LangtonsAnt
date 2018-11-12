@@ -21,12 +21,12 @@ Uint32 ftick(Uint32 ms, void *param)
 	return ms;
 }
 
-bool convertPixels(Uint32** pixels, Uint32*** pixelTex, int const SCREEN_WIDTH, int const SCREEN_HEIGHT) {
-	for (int i = 0; i < SCREEN_WIDTH; i++)
+bool convertPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN) {
+	for (int i = 0; i < SCREEN.w; i++)
 	{
-		for (int j = 0; j < SCREEN_HEIGHT; j++)
+		for (int j = 0; j < SCREEN.h; j++)
 		{
-			(*pixels)[i + j * SCREEN_WIDTH] = (*pixelTex)[i][j];
+			(*pixels)[i + j * SCREEN.w] = (*pixelTex)[i][j];
 		}
 	}
 	return true;
