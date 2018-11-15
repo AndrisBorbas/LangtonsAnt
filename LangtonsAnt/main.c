@@ -80,7 +80,7 @@ int main(int argc, char ** argv)
 	StartButtonStroke.y = StartButton.y - Strokesize;
 
 	SDL_Rect ResButton;
-	ResButton.w = 120;
+	ResButton.w = 144;
 	ResButton.h = 40;
 	ResButton.x = SCREEN.w / 2 + SCREEN.w / 4 - ResButton.w / 2;
 	ResButton.y = SCREEN.h - ResButton.h - 25;
@@ -233,6 +233,12 @@ int main(int argc, char ** argv)
 #ifdef DEBUG
 					printf("%d\n", SCREEN.w);
 #endif
+					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
+					char buff[sizeof(int) * 4 + 2];
+					snprintf(buff, sizeof buff, "%dx%d", SCREEN.w, SCREEN.h);
+					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
+					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
+					SDL_RenderPresent(gRenderer);
 				}
 				if (SDL_PointInRect(&mouse, &ResDown)) {
 					switch (SCREEN.h) {
@@ -264,6 +270,12 @@ int main(int argc, char ** argv)
 #ifdef DEBUG
 					printf("%d\n", SCREEN.w);
 #endif
+					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
+					char buff[sizeof(int) * 4 + 2];
+					snprintf(buff, sizeof buff, "%dx%d", SCREEN.w, SCREEN.h);
+					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
+					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
+					SDL_RenderPresent(gRenderer);
 				}
 			}
 			break;

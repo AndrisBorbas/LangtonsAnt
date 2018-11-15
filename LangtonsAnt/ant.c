@@ -3,7 +3,12 @@
 bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, SDL_Rect const SCREEN, int const SCALE, int const SPACING, int const ANTMARGIN, int instructnum, char* instructionset)
 {
 	(*lepes)++;
+
+#ifdef DEBUG
 	printf("%d. lepes: ", *lepes);
+#endif
+
+
 
 	if (!antgorithm(pixelTex, ant, SCREEN, SCALE, SPACING, ANTMARGIN))return false;
 
@@ -125,6 +130,7 @@ bool turnAnt(Ant* ant, int tile)
 	if (ant->heading > 270) ant->heading = ant->heading - 360;
 	if (ant->heading < 0) ant->heading = ant->heading + 360;
 	ant->lasttile = tile;
+#ifdef DEBUG
 	switch (ant->turn[ant->currenttile]) {
 	case 90:
 		printf("jobb\n");
@@ -139,6 +145,7 @@ bool turnAnt(Ant* ant, int tile)
 		printf("vissza\n");
 		break;
 	}
+#endif
 	return true;
 }
 
