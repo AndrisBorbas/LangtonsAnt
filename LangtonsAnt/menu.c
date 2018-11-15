@@ -2,19 +2,13 @@
 
 void refreshMenu(SDL_Window** gWindow, const SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN, int Strokesize, SDL_Rect* StartButton, SDL_Rect* StartButtonStroke, SDL_Rect* ResButton, SDL_Rect* ResUp, SDL_Rect* ResDown)
 {
-	SDL_Renderer* wasd = SDL_GetRenderer(*gWindow);
 	SDL_SetWindowSize(*gWindow, SCREEN.w, SCREEN.h);
-	SDL_Renderer* wasd2 = SDL_GetRenderer(*gWindow);
-	//free(*gRenderer);
-	//*gRenderer = SDL_CreateRenderer(*gWindow, -1, 0);
-	//initTexture(*gRenderer, *tPixelTexture, SCREEN);
-	//initTexture(*gRenderer, *tMainMenu, SCREEN);
 
 	*tMainMenu = IMG_LoadTexture(*gRenderer, "MainMenu.png");
 	if (!*tMainMenu)
 	{
 		SDL_Log("Failed to open image: %s", IMG_GetError());
-		exit(1);
+		exit(22);
 	}
 
 	SDL_Point nSB500 = { 124,25 };

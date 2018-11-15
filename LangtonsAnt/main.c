@@ -17,17 +17,20 @@ int main(int argc, char ** argv)
 	//The config file
 	FILE *wDefConf;
 	wDefConf = fopen(filename, "r+");
-	if (wDefConf == NULL) {
+	if (wDefConf == NULL)
+	{
 		printf("Could not open config file.");
-		return 30;
+		exit(30);
 	}
 
+	//Buffer for reading from file
 	char buffer[52] = "";
 
 	////////////////
 	//Default values
 	////////////////
 
+	//Window parameter container
 	volatile SDL_Rect SCREEN;
 	//Width of the window
 	SCREEN.w = 960;
@@ -53,7 +56,8 @@ int main(int argc, char ** argv)
 		fscanf(wDefConf, "%s", &buffer);
 		if (buffer[0] == '/')continue;
 
-		if (buffer[0] == '#') {
+		if (buffer[0] == '#')
+		{
 			loadintFromConfig(wDefConf, buffer, &SCREEN.w, "SCREEN_WIDTH");
 			loadintFromConfig(wDefConf, buffer, &SCREEN.h, "SCREEN_HEIGHT");
 			loadintFromConfig(wDefConf, buffer, &SCALE, "SCALE");
@@ -65,7 +69,7 @@ int main(int argc, char ** argv)
 	}
 	int instructnum = strlen(instructionset);
 
-	//Click to start
+	//Buttons
 	SDL_Rect StartButton;
 	StartButton.w = 252;
 	StartButton.h = 80;
@@ -111,21 +115,26 @@ int main(int argc, char ** argv)
 	//Is there an error
 	bool ERROR = false;
 
-	//The window we'll be rendering to
+	//The viewport window
 	SDL_Window *gWindow = NULL;
 
-	//The pixel renderer
+	//The renderer
 	SDL_Renderer *gRenderer = NULL;
 
+	//The pixel arrays
 	Uint32 *pixels = NULL;
 	Uint32 **pixelTex = NULL;
 
+	//Textues
 	SDL_Texture *tPixelTexture = NULL;
 	SDL_Texture *tMainMenu = NULL;
+
+	//Strings
 	SDL_Texture *tStrings = NULL;
 	SDL_Surface *sStrings = NULL;
 	SDL_Rect lStrings = {1,0,0,0};
 
+	//Mouse location
 	SDL_Point mouse = { 0,0 };
 
 	//Start up SDL and create window
@@ -140,7 +149,7 @@ int main(int argc, char ** argv)
 	if (!StartFont)
 	{
 		SDL_Log("Failed to open font: %s", TTF_GetError());
-		exit(1);
+		exit(11);
 	}
 
 	//Load StartFont
@@ -148,7 +157,7 @@ int main(int argc, char ** argv)
 	if (!MenuFont)
 	{
 		SDL_Log("Failed to open font: %s", TTF_GetError());
-		exit(1);
+		exit(12);
 	}
 
 	//Load main menu background
@@ -156,24 +165,10 @@ int main(int argc, char ** argv)
 	if (!tMainMenu)
 	{
 		SDL_Log("Failed to open image: %s", IMG_GetError());
-		exit(1);
+		exit(21);
 	}
 
-	//Render main menu
-	/*SDL_RenderClear(gRenderer);
-	SDL_RenderCopy(gRenderer, tMainMenu, NULL, NULL);
-	SDL_RenderPresent(gRenderer);
-	roundedBoxColor(gRenderer, StartButtonStroke.x, StartButtonStroke.y, StartButtonStroke.x + StartButtonStroke.w, StartButtonStroke.y + StartButtonStroke.h, 12, altDARKWHITE);
-	roundedBoxColor(gRenderer, StartButton.x, StartButton.y, StartButton.x + StartButton.w, StartButton.y + StartButton.h, 12, altGRAY);
-	drawTextintoButton(gRenderer, &sStrings, StartFont, &tStrings, &lStrings, StartButton, "Start", TextORANGE);
-	roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
-	roundedBoxColor(gRenderer, ResUp.x, ResUp.y, ResUp.x + ResUp.w, ResUp.y + ResUp.h, 6, altGRAY);
-	roundedBoxColor(gRenderer, ResDown.x, ResDown.y, ResDown.x + ResDown.w, ResDown.y + ResDown.h, 6, altGRAY);
-	SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
-	SDL_RenderPresent(gRenderer);*/
-
-	//delay(1000);
-
+	//Draw main menu
 	drawMenu(&sStrings, &StartFont, &MenuFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown);
 
 	SDL_Event event;
@@ -197,15 +192,21 @@ int main(int argc, char ** argv)
 			if (event.button.button == SDL_BUTTON_LEFT)
 			{
 				SDL_GetMouseState(&mouse.x, &mouse.y);
-				if (SDL_PointInRect(&mouse, &StartButton)) start = true;
+				if (SDL_PointInRect(&mouse, &StartButton))
+				{
+					start = true;
+				}
 
 				if (SDL_PointInRect(&mouse, &ResButton))
 				{
 					refreshMenu(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, Strokesize, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown);
 					drawMenu(&sStrings, &StartFont, &MenuFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown);
 				}
-				if (SDL_PointInRect(&mouse, &ResUp)) {
-					switch (SCREEN.w) {
+
+				if (SDL_PointInRect(&mouse, &ResUp))
+				{
+					switch (SCREEN.w)
+					{
 					case 500:
 						SCREEN.w = 720;
 						SCREEN.h = 720;
@@ -241,8 +242,11 @@ int main(int argc, char ** argv)
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
 				}
-				if (SDL_PointInRect(&mouse, &ResDown)) {
-					switch (SCREEN.h) {
+
+				if (SDL_PointInRect(&mouse, &ResDown))
+				{
+					switch (SCREEN.h)
+					{
 					case 1000:
 						SCREEN.w = 960;
 						SCREEN.h = 960;
@@ -285,9 +289,11 @@ int main(int argc, char ** argv)
 
 	//The ant
 	Ant ant = { SCREEN.w / 2 , SCREEN.w / 2 , LEFT, 0, 0, BLACK };
-	for (int i = 0; i < 19; i++) {
+	for (int i = 0; i < 19; i++) 
+	{
 		if (instructionset[i] == '\0')break;
-		switch (instructionset[i]) {
+		switch (instructionset[i])
+		{
 		case 'R':
 		case 'r':
 			ant.turn[i] = 90;
@@ -307,8 +313,9 @@ int main(int argc, char ** argv)
 		}
 	}
 
-	//Initialize pixel textures
+	//Initialize pixel texture
 	initTexture(&gRenderer, &tPixelTexture, SCREEN);
+	//Initialize pixel arrays
 	initPixels(&pixels, &pixelTex, SCREEN);
 
 	//Create base tickrate
@@ -336,7 +343,8 @@ int main(int argc, char ** argv)
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_g:
-				for (int i = 0; i < 104; i++) {
+				for (int i = 0; i < 104; i++)
+				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset))
 					{
 						ERROR = true;
@@ -348,7 +356,8 @@ int main(int argc, char ** argv)
 				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
 				break;
 			case SDLK_h:
-				for (int i = 0; i < 1040; i++) {
+				for (int i = 0; i < 1040; i++)
+				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset))
 					{
 						ERROR = true;
@@ -360,7 +369,8 @@ int main(int argc, char ** argv)
 				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
 				break;
 			case SDLK_j:
-				for (int i = 0; i < 10400; i++) {
+				for (int i = 0; i < 10400; i++)
+				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset))
 					{
 						ERROR = true;
@@ -386,8 +396,8 @@ int main(int argc, char ** argv)
 				}
 				convertPixels(&pixels, &pixelTex, SCREEN);
 				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
-				if (!ERROR) {
-					//SDL_RenderClear(gRenderer);
+				if (!ERROR) 
+				{
 					SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
 					SDL_RenderPresent(gRenderer);
 				}
@@ -408,7 +418,8 @@ int main(int argc, char ** argv)
 			}
 			break;
 		}
-		if (ERROR) {
+		if (ERROR) 
+		{
 			while (!equit)
 			{
 				SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
@@ -423,7 +434,6 @@ int main(int argc, char ** argv)
 		}
 		else
 		{
-			//SDL_RenderClear(gRenderer);
 			SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
 			SDL_RenderPresent(gRenderer);
 		}

@@ -2,54 +2,44 @@
 
 bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN)
 {
-	//Initialization flag
-	bool success = true;
-
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
-		success = false;
+		return false;
 	}
 	else
 	{
 		//Create window
 		*gWindow = SDL_CreateWindow("Langton's Ant", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN.w, SCREEN.h, SDL_WINDOW_SHOWN);
-		if (*gWindow == NULL)
+		if (!*gWindow)
 		{
 			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
-			success = false;
+			return false;
 		}
 		else
 		{
-			//Get window surface
-			//gScreenSurface = SDL_GetWindowSurface(gWindow);
-
 			//Initialize the renderer
 			*gRenderer = SDL_CreateRenderer(*gWindow, -1, 0);
 
 			//initTexture(gRenderer, tPixelTexture, SCREEN);
 			initTexture(gRenderer, tMainMenu, SCREEN);
 
+			//Initialize the font engine
 			TTF_Init();
 		}
 	}
-
-	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, 1);
-
 #ifdef __Win32__
 	freopen("CON", "w", stdout);
 	freopen("CON", "w", stderr);
-
-	//SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, 2);
 #endif
-	return success;
+	return true;
 }
 
 bool initTexture(const SDL_Renderer** gRenderer, SDL_Texture** tTexture, SDL_Rect const SCREEN) 
 {
 	//Destroy previous texture
-	//if (*tTexture)SDL_DestroyTexture(*tTexture);
+	if (*tTexture)SDL_DestroyTexture(*tTexture);
 
 	//Initialize screen texture
 	*tTexture = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN.w, SCREEN.h);
@@ -77,14 +67,12 @@ bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 
 void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* tPixelTexture, SDL_Texture* tMainMenu)
 {
-	//free(*lStrings);
-
-	//Free up allocated pixel array
+	//Free up allocated pixel arrays
 	free(*pixels);
 	free(*pixelTex[0]);
 	free(*pixelTex);
 
-	//Destroy texture
+	//Destroy textures
 	SDL_DestroyTexture(tPixelTexture);
 	SDL_DestroyTexture(tMainMenu);
 	tMainMenu = NULL;

@@ -6,3 +6,5 @@
 #include "SDLHandler.h"
 #include "Utilities.h"
 
+//Main instance
+int main(int, char**);
