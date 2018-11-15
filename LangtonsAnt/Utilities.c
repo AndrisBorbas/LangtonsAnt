@@ -1,5 +1,14 @@
 #include "Utilities.h"
 
+int delay(int number_of_milliseconds) 
+{
+	clock_t start_time = clock();
+
+	while (clock() < start_time + number_of_milliseconds)
+		;
+	return clock();
+}
+
 void memset32(void * dest, Uint32 value, uintptr_t size)
 {
 	uintptr_t i;
@@ -21,7 +30,8 @@ Uint32 ftick(Uint32 ms, void *param)
 	return ms;
 }
 
-bool convertPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN) {
+bool convertPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN) 
+{
 	for (int i = 0; i < SCREEN.w; i++)
 	{
 		for (int j = 0; j < SCREEN.h; j++)
@@ -32,7 +42,8 @@ bool convertPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN) {
 	return true;
 }
 
-bool drawText(SDL_Renderer* gRenderer, SDL_Surface* sStrings, TTF_Font* font, SDL_Texture** tStrings, SDL_Rect* lStrings, SDL_Rect button, char text[], SDL_Color color) {
+bool drawTextintoButton(SDL_Renderer* gRenderer, SDL_Surface* sStrings, TTF_Font* font, SDL_Texture** tStrings, SDL_Rect* lStrings, SDL_Rect button, char text[], SDL_Color color) 
+{
 	sStrings = TTF_RenderUTF8_Blended(font, text, color);
 	*tStrings = SDL_CreateTextureFromSurface(gRenderer, sStrings);
 	lStrings->x = (button.x + button.w / 2 - sStrings->w / 2);
@@ -42,26 +53,32 @@ bool drawText(SDL_Renderer* gRenderer, SDL_Surface* sStrings, TTF_Font* font, SD
 	SDL_FreeSurface(sStrings);
 }
 
-void loadintFromConfig(FILE* wDefConf, char* buffer, int* variable, char* variableName) {
+void loadintFromConfig(FILE* wDefConf, char* buffer, int* variable, char* variableName) 
+{
 	char ctemp[52] = "#";
 	strcat(ctemp, variableName);
 	int temp=0;
 	if (strcmp(buffer, ctemp) == 0)
 	{
 		fscanf(wDefConf, "%s%d", &buffer, &temp);
+#ifdef DEBUG
 		printf("%d\n", temp);
+#endif
 		*variable = temp;
 	}
 }
 
-void loadcharFromConfig(FILE* wDefConf, char* buffer, char* variable, char* variableName) {
+void loadcharFromConfig(FILE* wDefConf, char* buffer, char* variable, char* variableName)
+{
 	char ctemp[52] = "#";
 	strcat(ctemp, variableName);
 	char temp[52] = "";
 	if (strcmp(buffer, ctemp) == 0)
 	{
 		fscanf(wDefConf, "%s%s", &buffer, &temp);
+#ifdef DEBUG
 		printf("%s\n", temp);
+#endif
 		strcpy(variable, temp);
 	}
 }

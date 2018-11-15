@@ -58,6 +58,9 @@ bool initTextures(SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Tex
 
 bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN) 
 {
+	if (*pixels)free(*pixels);
+	if (*pixelTex)free(*pixelTex);
+
 	//Initialize pixel array
 	*pixels = malloc(SCREEN.w * SCREEN.h * sizeof(**pixels));
 
@@ -75,8 +78,11 @@ bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 
 void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu)
 {
+	//free(*lStrings);
+
 	//Free up allocated pixel array
 	free(*pixels);
+	free(*pixelTex[0]);
 	free(*pixelTex);
 
 	//Destroy texture

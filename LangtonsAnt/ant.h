@@ -1,7 +1,7 @@
 #pragma once
 
 #include "includes.h"
-#include "colors.h"
+
 
 //Stores the properties of the ant
 typedef struct Ant {

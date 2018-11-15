@@ -1,6 +1,10 @@
 #pragma once
 
 #include "includes.h"
+#include <time.h>
+
+//millisecond based delay
+int delay(int number_of_milliseconds);
 
 //memset with 32 bit unsigned integer
 void memset32(void*, Uint32, uintptr_t);
@@ -16,3 +20,6 @@ void loadcharFromConfig(FILE*, char*, char*, char*);
 
 //Base tickrate of the simulation
 Uint32 ftick(Uint32, void*);
+
+//Draw text into the middle of a button
+bool drawTextintoButton(SDL_Renderer*, SDL_Surface*, TTF_Font*, SDL_Texture**, SDL_Rect*, SDL_Rect, char*, SDL_Color);

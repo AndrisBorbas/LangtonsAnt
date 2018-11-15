@@ -4,6 +4,8 @@
 
 int main(int argc, char ** argv)
 {
+	SDL_Color TextDARKWHITE = { 221,221,221 }, TextORANGE = { 247,99,12 };
+
 	char filename[52] = "config.ini";
 
 	if (argc > 1)strcpy(filename, argv[1]);
@@ -21,6 +23,10 @@ int main(int argc, char ** argv)
 	}
 
 	char buffer[52] = "";
+
+	////////////////
+	//Default values
+	////////////////
 
 	volatile SDL_Rect SCREEN;
 	//Width of the window
@@ -41,8 +47,7 @@ int main(int argc, char ** argv)
 	//Number of steps made by the ant;
 	int lepes = 0;
 
-
-
+	//Load values from config file
 	while ((strstr(buffer, "endconfig;")) == NULL)
 	{
 		fscanf(wDefConf, "%s", &buffer);
@@ -59,7 +64,6 @@ int main(int argc, char ** argv)
 		}
 	}
 	int instructnum = strlen(instructionset);
-
 
 	//Click to start
 	SDL_Rect StartButton;
@@ -85,13 +89,14 @@ int main(int argc, char ** argv)
 	ResUp.w = 34;
 	ResUp.h = 34;
 	ResUp.x = ResButton.x + ResButton.w + 8;
-	ResUp.y = ResButton.y+3;
+	ResUp.y = ResButton.y + 3;
 
 	SDL_Rect ResDown;
 	ResDown.w = 34;
 	ResDown.h = 34;
 	ResDown.x = ResButton.x - ResDown.w - 8;
-	ResDown.y = ResButton.y+3;
+	ResDown.y = ResButton.y + 3;
+
 
 
 	//Handle normal quit
@@ -118,7 +123,7 @@ int main(int argc, char ** argv)
 	SDL_Texture *tMainMenu = NULL;
 	SDL_Texture *tStrings = NULL;
 	SDL_Surface *sStrings = NULL;
-	SDL_Rect lStrings = { 0,0,0,0 };
+	SDL_Rect lStrings = {1,0,0,0};
 
 	SDL_Point mouse = { 0,0 };
 
@@ -138,7 +143,7 @@ int main(int argc, char ** argv)
 	}
 
 	//Load StartFont
-	TTF_Font *MenuFont = TTF_OpenFont("ExodusDemo-Striped.otf", 40);
+	TTF_Font *MenuFont = TTF_OpenFont("ExodusDemo-Striped.otf", 30);
 	if (!MenuFont)
 	{
 		SDL_Log("Failed to open font: %s", TTF_GetError());
@@ -154,17 +159,21 @@ int main(int argc, char ** argv)
 	}
 
 	//Render main menu
-	SDL_RenderClear(gRenderer);
+	/*SDL_RenderClear(gRenderer);
 	SDL_RenderCopy(gRenderer, tMainMenu, NULL, NULL);
 	SDL_RenderPresent(gRenderer);
 	roundedBoxColor(gRenderer, StartButtonStroke.x, StartButtonStroke.y, StartButtonStroke.x + StartButtonStroke.w, StartButtonStroke.y + StartButtonStroke.h, 12, altDARKWHITE);
 	roundedBoxColor(gRenderer, StartButton.x, StartButton.y, StartButton.x + StartButton.w, StartButton.y + StartButton.h, 12, altGRAY);
-	drawText(gRenderer, &sStrings, StartFont, &tStrings, &lStrings, StartButton, "Start", TextORANGE);
+	drawTextintoButton(gRenderer, &sStrings, StartFont, &tStrings, &lStrings, StartButton, "Start", TextORANGE);
 	roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
 	roundedBoxColor(gRenderer, ResUp.x, ResUp.y, ResUp.x + ResUp.w, ResUp.y + ResUp.h, 6, altGRAY);
 	roundedBoxColor(gRenderer, ResDown.x, ResDown.y, ResDown.x + ResDown.w, ResDown.y + ResDown.h, 6, altGRAY);
 	SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
-	SDL_RenderPresent(gRenderer);
+	SDL_RenderPresent(gRenderer);*/
+
+	//delay(1000);
+
+	drawMenu(&sStrings, &StartFont, &MenuFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown);
 
 	SDL_Event event;
 
@@ -191,42 +200,70 @@ int main(int argc, char ** argv)
 
 				if (SDL_PointInRect(&mouse, &ResButton))
 				{
-					SCREEN.h = 500;
-					SCREEN.w = 500;
-					SDL_SetWindowSize(gWindow, SCREEN.w, SCREEN.h);
-					initTextures(&gRenderer, &tPixelTexture, &tMainMenu, SCREEN);
-
-					tMainMenu = IMG_LoadTexture(gRenderer, "MainMenu.png");
-					if (!tMainMenu)
-					{
-						SDL_Log("Failed to open image: %s", IMG_GetError());
-						exit(1);
+					refreshMenu(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, Strokesize, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown);
+					drawMenu(&sStrings, &StartFont, &MenuFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown);
+				}
+				if (SDL_PointInRect(&mouse, &ResUp)) {
+					switch (SCREEN.w) {
+					case 500:
+						SCREEN.w = 720;
+						SCREEN.h = 720;
+						break;
+					case 720:
+						SCREEN.w = 900;
+						SCREEN.h = 900;
+						break;
+					case 900:
+						SCREEN.w = 960;
+						SCREEN.h = 960;
+						break;
+					case 960:
+						SCREEN.w = 1000;
+						SCREEN.h = 1000;
+						break;
+					case 1000:
+						SCREEN.w = 1000;
+						SCREEN.h = 1000;
+						break;
+					default:
+						SCREEN.w = 960;
+						SCREEN.h = 960;
+						break;
 					}
-
-					StartButton.w = 252;
-					StartButton.h = 80;
-					StartButton.x = SCREEN.w / 2 - StartButton.w / 2;
-					StartButton.y = 25;
-
-					StartButtonStroke.w = StartButton.w + (Strokesize * 2);
-					StartButtonStroke.h = StartButton.h + (Strokesize * 2);
-					StartButtonStroke.x = StartButton.x - Strokesize;
-					StartButtonStroke.y = StartButton.y - Strokesize;
-
-					ResButton.w = 120;
-					ResButton.h = 40;
-					ResButton.x = SCREEN.w / 2 + SCREEN.w / 4 - ResButton.w / 2;
-					ResButton.y = SCREEN.h - ResButton.h - 25;
-
-					SDL_RenderClear(gRenderer);
-					SDL_RenderCopy(gRenderer, tMainMenu, NULL, NULL);
-					SDL_RenderPresent(gRenderer);
-					roundedBoxColor(gRenderer, StartButtonStroke.x, StartButtonStroke.y, StartButtonStroke.x + StartButtonStroke.w, StartButtonStroke.y + StartButtonStroke.h, 12, altDARKWHITE);
-					roundedBoxColor(gRenderer, StartButton.x, StartButton.y, StartButton.x + StartButton.w, StartButton.y + StartButton.h, 12, altGRAY);
-					drawText(gRenderer, &sStrings, StartFont, &tStrings, &lStrings, StartButton, "Start", TextORANGE);
-					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
-					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
-					SDL_RenderPresent(gRenderer);
+#ifdef DEBUG
+					printf("%d\n", SCREEN.w);
+#endif
+				}
+				if (SDL_PointInRect(&mouse, &ResDown)) {
+					switch (SCREEN.h) {
+					case 1000:
+						SCREEN.w = 960;
+						SCREEN.h = 960;
+						break;
+					case 960:
+						SCREEN.w = 900;
+						SCREEN.h = 900;
+						break;
+					case 900:
+						SCREEN.w = 720;
+						SCREEN.h = 720;
+						break;
+					case 720:
+						SCREEN.w = 500;
+						SCREEN.h = 500;
+						break;
+					case 500:
+						SCREEN.w = 500;
+						SCREEN.h = 500;
+						break;
+					default:
+						SCREEN.w = 960;
+						SCREEN.h = 960;
+						break;
+					}
+#ifdef DEBUG
+					printf("%d\n", SCREEN.w);
+#endif
 				}
 			}
 			break;
@@ -376,6 +413,11 @@ int main(int argc, char ** argv)
 			SDL_RenderPresent(gRenderer);
 		}
 	}
+	
+#ifdef DEBUG
+	debugmalloc_dump();
+#endif
+
 	//Free resources and close SDL
 	close(&pixels, &pixelTex, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu);
 	return 0;
