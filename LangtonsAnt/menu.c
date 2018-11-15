@@ -1,10 +1,14 @@
 #include "menu.h"
 
-void refreshMenu(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN, int Strokesize, SDL_Rect* StartButton, SDL_Rect* StartButtonStroke, SDL_Rect* ResButton, SDL_Rect* ResUp, SDL_Rect* ResDown)
+void refreshMenu(SDL_Window** gWindow, const SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN, int Strokesize, SDL_Rect* StartButton, SDL_Rect* StartButtonStroke, SDL_Rect* ResButton, SDL_Rect* ResUp, SDL_Rect* ResDown)
 {
+	SDL_Renderer* wasd = SDL_GetRenderer(*gWindow);
 	SDL_SetWindowSize(*gWindow, SCREEN.w, SCREEN.h);
-	initTextures(*gRenderer, *tPixelTexture, *tMainMenu, SCREEN);
-	//initPixels();
+	SDL_Renderer* wasd2 = SDL_GetRenderer(*gWindow);
+	//free(*gRenderer);
+	//*gRenderer = SDL_CreateRenderer(*gWindow, -1, 0);
+	//initTexture(*gRenderer, *tPixelTexture, SCREEN);
+	//initTexture(*gRenderer, *tMainMenu, SCREEN);
 
 	*tMainMenu = IMG_LoadTexture(*gRenderer, "MainMenu.png");
 	if (!*tMainMenu)
@@ -60,7 +64,7 @@ void refreshMenu(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** t
 	}
 }
 
-void drawMenu(SDL_Surface** sStrings, TTF_Font** StartFont, TTF_Font** MenuFont, SDL_Texture** tStrings, SDL_Rect** lStrings, SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN, SDL_Rect* StartButton, SDL_Rect* StartButtonStroke, SDL_Rect* ResButton, SDL_Rect* ResUp, SDL_Rect* ResDown)
+void drawMenu(SDL_Surface** sStrings, TTF_Font** StartFont, TTF_Font** MenuFont, SDL_Texture** tStrings, SDL_Rect** lStrings, SDL_Window** gWindow, const SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN, SDL_Rect* StartButton, SDL_Rect* StartButtonStroke, SDL_Rect* ResButton, SDL_Rect* ResUp, SDL_Rect* ResDown)
 {
 	SDL_Color TextDARKWHITE = { 221,221,221 }, TextORANGE = { 247,99,12 };
 	SDL_RenderClear(*gRenderer);
@@ -107,6 +111,7 @@ void setResButton(SDL_Point newResButton, SDL_Rect const SCREEN, SDL_Rect* Start
 {
 	if (isRes) {
 		if (SCREEN.w >= 1000 || SCREEN.h >= 1000)ResButton->w = 160;
+		else ResButton->w = 144;
 	}
 	ResButton->x = newResButton.x;
 	ResButton->y = newResButton.y;

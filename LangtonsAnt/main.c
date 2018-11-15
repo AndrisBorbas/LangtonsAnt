@@ -80,7 +80,8 @@ int main(int argc, char ** argv)
 	StartButtonStroke.y = StartButton.y - Strokesize;
 
 	SDL_Rect ResButton;
-	ResButton.w = 144;
+	if (SCREEN.w >= 1000)ResButton.w = 160;
+	else ResButton.w = 144;
 	ResButton.h = 40;
 	ResButton.x = SCREEN.w / 2 + SCREEN.w / 4 - ResButton.w / 2;
 	ResButton.y = SCREEN.h - ResButton.h - 25;
@@ -186,12 +187,12 @@ int main(int argc, char ** argv)
 		case SDL_QUIT:
 			quit = true;
 			break;
-		case SDL_MOUSEBUTTONDOWN:
+		/*case SDL_MOUSEBUTTONDOWN:
 			if (event.button.button == SDL_BUTTON_LEFT)
 			{
 				SDL_GetMouseState(&mouse.x, &mouse.y);
 			}
-			break;
+			break;*/
 		case SDL_MOUSEBUTTONUP:
 			if (event.button.button == SDL_BUTTON_LEFT)
 			{
@@ -307,11 +308,13 @@ int main(int argc, char ** argv)
 	}
 
 	//Initialize pixel textures
+	initTexture(&gRenderer, &tPixelTexture, SCREEN);
 	initPixels(&pixels, &pixelTex, SCREEN);
 
 	//Create base tickrate
 	SDL_TimerID tick = SDL_AddTimer(MSTICK, ftick, NULL);
 
+	SDL_RenderClear(gRenderer);
 
 	while (!quit)
 	{
@@ -431,6 +434,6 @@ int main(int argc, char ** argv)
 #endif
 
 	//Free resources and close SDL
-	close(&pixels, &pixelTex, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu);
+	close(&pixels, &pixelTex, &gWindow, gRenderer, tPixelTexture, tMainMenu);
 	return 0;
 }

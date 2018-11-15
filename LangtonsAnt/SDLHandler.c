@@ -28,7 +28,8 @@ bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixe
 			//Initialize the renderer
 			*gRenderer = SDL_CreateRenderer(*gWindow, -1, 0);
 
-			initTextures(gRenderer, tPixelTexture, tMainMenu, SCREEN);
+			//initTexture(gRenderer, tPixelTexture, SCREEN);
+			initTexture(gRenderer, tMainMenu, SCREEN);
 
 			TTF_Init();
 		}
@@ -45,15 +46,13 @@ bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixe
 	return success;
 }
 
-bool initTextures(SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN) 
+bool initTexture(const SDL_Renderer** gRenderer, SDL_Texture** tTexture, SDL_Rect const SCREEN) 
 {
 	//Destroy previous texture
-	if (*tPixelTexture)SDL_DestroyTexture(*tPixelTexture);
-	if (*tMainMenu)SDL_DestroyTexture(*tMainMenu);
+	//if (*tTexture)SDL_DestroyTexture(*tTexture);
 
 	//Initialize screen texture
-	*tPixelTexture = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN.w, SCREEN.h);
-	*tMainMenu = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN.w, SCREEN.h);
+	*tTexture = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN.w, SCREEN.h);
 }
 
 bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN) 
@@ -76,7 +75,7 @@ bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 	return true;
 }
 
-void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu)
+void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* tPixelTexture, SDL_Texture* tMainMenu)
 {
 	//free(*lStrings);
 
@@ -86,18 +85,18 @@ void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window** gWindow, SDL_Render
 	free(*pixelTex);
 
 	//Destroy texture
-	SDL_DestroyTexture(*tPixelTexture);
-	SDL_DestroyTexture(*tMainMenu);
-	*tMainMenu = NULL;
-	*tPixelTexture = NULL;
+	SDL_DestroyTexture(tPixelTexture);
+	SDL_DestroyTexture(tMainMenu);
+	tMainMenu = NULL;
+	tPixelTexture = NULL;
 
 	//Destroy renderer
-	SDL_DestroyRenderer(*gRenderer);
-	*gRenderer = NULL;
+	SDL_DestroyRenderer(gRenderer);
+	gRenderer = NULL;
 
 	//Destroy window
-	SDL_DestroyWindow(*gWindow);
-	*gWindow = NULL;
+	SDL_DestroyWindow(gWindow);
+	gWindow = NULL;
 
 	//Quit SDL subsystems
 	SDL_Quit();
