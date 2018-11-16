@@ -92,3 +92,85 @@ void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Rendere
 	//Quit SDL subsystems
 	SDL_Quit();
 }
+
+void save_texture(SDL_Renderer* gRenderer, SDL_Texture* tTexture, const char *filename)
+{
+	SDL_Texture *tRender;
+	SDL_Surface *surf;
+	int st;
+	int w;
+	int h;
+	int format;
+	void *pixels;
+
+	pixels = NULL;
+	surf = NULL;
+	tRender = NULL;
+	format = SDL_PIXELFORMAT_RGBA32;
+
+	/* Get information about texture we want to save */
+	st = SDL_QueryTexture(tTexture, NULL, NULL, &w, &h);
+	if (st != 0) {
+		SDL_Log("Failed querying texture: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	tRender = SDL_CreateTexture(gRenderer, format, SDL_TEXTUREACCESS_TARGET, w, h);
+	if (!tRender) {
+		SDL_Log("Failed creating render texture: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	/*
+	 * Initialize our canvas, then copy texture to a target whose pixel data we
+	 * can access
+	 */
+	st = SDL_SetRenderTarget(gRenderer, tRender);
+	if (st != 0) {
+		SDL_Log("Failed setting render target: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0x00);
+	SDL_RenderClear(gRenderer);
+
+	st = SDL_RenderCopy(gRenderer, tTexture, NULL, NULL);
+	if (st != 0) {
+		SDL_Log("Failed copying texture data: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	/* Create buffer to hold texture data and load it */
+	pixels = malloc(w * h * SDL_BYTESPERPIXEL(format));
+	if (!pixels) {
+		SDL_Log("Failed allocating memory\n");
+		goto cleanup;
+	}
+
+	st = SDL_RenderReadPixels(gRenderer, NULL, format, pixels, w * SDL_BYTESPERPIXEL(format));
+	if (st != 0) {
+		SDL_Log("Failed reading pixel data: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	/* Copy pixel data over to surface */
+	surf = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, SDL_BITSPERPIXEL(format), w * SDL_BYTESPERPIXEL(format), format);
+	if (!surf) {
+		SDL_Log("Failed creating new surface: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	/* Save result to an image */
+	st = SDL_SaveBMP(surf, filename);
+	if (st != 0) {
+		SDL_Log("Failed saving image: %s\n", SDL_GetError());
+		goto cleanup;
+	}
+
+	SDL_Log("Saved texture as BMP to \"%s\"\n", filename);
+
+cleanup:
+	SDL_FreeSurface(surf);
+	free(pixels);
+	SDL_DestroyTexture(tRender);
+}

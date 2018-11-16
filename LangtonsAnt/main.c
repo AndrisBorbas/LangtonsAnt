@@ -1,4 +1,4 @@
-﻿// Copyright 2018 Andirs Borbás, All Rights ¯\_(ツ)_/¯.
+﻿// Copyright 2018 © Andirs Borbás™, All Rights ¯\_(ツ)_/¯®.
 
 #include "main.h"
 
@@ -558,6 +558,10 @@ int main(int argc, char ** argv)
 #ifdef DEBUG
 	debugmalloc_dump();
 #endif
+
+	char antouttexturename[100];
+	snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%d-%d-%d.bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+	save_texture(gRenderer, tPixelTexture, antouttexturename);
 
 	//Free resources and close SDL
 	close(&pixels, &pixelTex, &gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings, fAntOut);
