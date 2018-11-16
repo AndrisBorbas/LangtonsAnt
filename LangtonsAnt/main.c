@@ -4,8 +4,6 @@
 
 int main(int argc, char ** argv)
 {
-	SDL_Color TextDARKWHITE = { 221,221,221 }, TextORANGE = { 247,99,12 };
-
 	char filename[52] = "config.ini";
 
 	if (argc > 1)strcpy(filename, argv[1]);
@@ -103,6 +101,12 @@ int main(int argc, char ** argv)
 	ResDown.y = ResButton.y + 3;
 
 
+	SDL_Rect InstructButton;
+	InstructButton.w = 200;
+	InstructButton.h = 40;
+	InstructButton.x = SCREEN.w / 2 - SCREEN.w / 4 - InstructButton.w / 2;
+	InstructButton.y = SCREEN.h - InstructButton.h - 25;
+
 
 	//Handle normal quit
 	bool quit = false;
@@ -132,7 +136,7 @@ int main(int argc, char ** argv)
 	//Strings
 	SDL_Texture *tStrings = NULL;
 	SDL_Surface *sStrings = NULL;
-	SDL_Rect lStrings = {1,0,0,0};
+	SDL_Rect lStrings = { 1,0,0,0 };
 
 	//Mouse location
 	SDL_Point mouse = { 0,0 };
@@ -152,12 +156,19 @@ int main(int argc, char ** argv)
 		exit(11);
 	}
 
-	//Load StartFont
+	//Load MenuFont
 	TTF_Font *MenuFont = TTF_OpenFont("ExodusDemo-Striped.otf", 30);
 	if (!MenuFont)
 	{
 		SDL_Log("Failed to open font: %s", TTF_GetError());
 		exit(12);
+	}
+
+	TTF_Font *InstructFont = TTF_OpenFont("ExodusDemo-Striped.otf", 20);
+	if (!InstructFont)
+	{
+		SDL_Log("Failed to open font: %s", TTF_GetError());
+		exit(13);
 	}
 
 	//Load main menu background
@@ -169,7 +180,10 @@ int main(int argc, char ** argv)
 	}
 
 	//Draw main menu
-	drawMenu(&sStrings, &StartFont, &MenuFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown);
+	drawMenu(&sStrings, &StartFont, &MenuFont, &InstructFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
+		SCREEN, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &InstructButton, instructionset);
+
+	SDL_Rect tempSCREEN = SCREEN;
 
 	SDL_Event event;
 
@@ -182,12 +196,12 @@ int main(int argc, char ** argv)
 		case SDL_QUIT:
 			quit = true;
 			break;
-		/*case SDL_MOUSEBUTTONDOWN:
-			if (event.button.button == SDL_BUTTON_LEFT)
-			{
-				SDL_GetMouseState(&mouse.x, &mouse.y);
-			}
-			break;*/
+			/*case SDL_MOUSEBUTTONDOWN:
+				if (event.button.button == SDL_BUTTON_LEFT)
+				{
+					SDL_GetMouseState(&mouse.x, &mouse.y);
+				}
+				break;*/
 		case SDL_MOUSEBUTTONUP:
 			if (event.button.button == SDL_BUTTON_LEFT)
 			{
@@ -199,45 +213,47 @@ int main(int argc, char ** argv)
 
 				if (SDL_PointInRect(&mouse, &ResButton))
 				{
-					refreshMenu(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, Strokesize, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown);
-					drawMenu(&sStrings, &StartFont, &MenuFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown);
+					SCREEN = tempSCREEN;
+					refreshMenu(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, Strokesize, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &InstructButton);
+					drawMenu(&sStrings, &StartFont, &MenuFont, &InstructFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
+						SCREEN, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &InstructButton, instructionset);
 				}
 
 				if (SDL_PointInRect(&mouse, &ResUp))
 				{
-					switch (SCREEN.w)
+					switch (tempSCREEN.w)
 					{
 					case 500:
-						SCREEN.w = 720;
-						SCREEN.h = 720;
+						tempSCREEN.w = 720;
+						tempSCREEN.h = 720;
 						break;
 					case 720:
-						SCREEN.w = 900;
-						SCREEN.h = 900;
+						tempSCREEN.w = 900;
+						tempSCREEN.h = 900;
 						break;
 					case 900:
-						SCREEN.w = 960;
-						SCREEN.h = 960;
+						tempSCREEN.w = 960;
+						tempSCREEN.h = 960;
 						break;
 					case 960:
-						SCREEN.w = 1000;
-						SCREEN.h = 1000;
+						tempSCREEN.w = 1000;
+						tempSCREEN.h = 1000;
 						break;
 					case 1000:
-						SCREEN.w = 1000;
-						SCREEN.h = 1000;
+						tempSCREEN.w = 1000;
+						tempSCREEN.h = 1000;
 						break;
 					default:
-						SCREEN.w = 960;
-						SCREEN.h = 960;
+						tempSCREEN.w = 960;
+						tempSCREEN.h = 960;
 						break;
 					}
 #ifdef DEBUG
-					printf("%d\n", SCREEN.w);
+					printf("%d\n", tempSCREEN.w);
 #endif
 					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
 					char buff[sizeof(int) * 4 + 2];
-					snprintf(buff, sizeof buff, "%dx%d", SCREEN.w, SCREEN.h);
+					snprintf(buff, sizeof buff, "%dx%d", tempSCREEN.w, tempSCREEN.h);
 					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
@@ -245,42 +261,47 @@ int main(int argc, char ** argv)
 
 				if (SDL_PointInRect(&mouse, &ResDown))
 				{
-					switch (SCREEN.h)
+					switch (tempSCREEN.h)
 					{
 					case 1000:
-						SCREEN.w = 960;
-						SCREEN.h = 960;
+						tempSCREEN.w = 960;
+						tempSCREEN.h = 960;
 						break;
 					case 960:
-						SCREEN.w = 900;
-						SCREEN.h = 900;
+						tempSCREEN.w = 900;
+						tempSCREEN.h = 900;
 						break;
 					case 900:
-						SCREEN.w = 720;
-						SCREEN.h = 720;
+						tempSCREEN.w = 720;
+						tempSCREEN.h = 720;
 						break;
 					case 720:
-						SCREEN.w = 500;
-						SCREEN.h = 500;
+						tempSCREEN.w = 500;
+						tempSCREEN.h = 500;
 						break;
 					case 500:
-						SCREEN.w = 500;
-						SCREEN.h = 500;
+						tempSCREEN.w = 500;
+						tempSCREEN.h = 500;
 						break;
 					default:
-						SCREEN.w = 960;
-						SCREEN.h = 960;
+						tempSCREEN.w = 960;
+						tempSCREEN.h = 960;
 						break;
 					}
 #ifdef DEBUG
-					printf("%d\n", SCREEN.w);
+					printf("%d\n", tempSCREEN.w);
 #endif
 					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
 					char buff[sizeof(int) * 4 + 2];
-					snprintf(buff, sizeof buff, "%dx%d", SCREEN.w, SCREEN.h);
+					snprintf(buff, sizeof buff, "%dx%d", tempSCREEN.w, tempSCREEN.h);
 					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
+				}
+
+				if (SDL_PointInRect(&mouse, &InstructButton))
+				{
+					
 				}
 			}
 			break;
@@ -289,7 +310,7 @@ int main(int argc, char ** argv)
 
 	//The ant
 	Ant ant = { SCREEN.w / 2 , SCREEN.w / 2 , LEFT, 0, 0, BLACK };
-	for (int i = 0; i < 19; i++) 
+	for (int i = 0; i < 19; i++)
 	{
 		if (instructionset[i] == '\0')break;
 		switch (instructionset[i])
@@ -396,7 +417,7 @@ int main(int argc, char ** argv)
 				}
 				convertPixels(&pixels, &pixelTex, SCREEN);
 				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
-				if (!ERROR) 
+				if (!ERROR)
 				{
 					SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
 					SDL_RenderPresent(gRenderer);
@@ -418,7 +439,7 @@ int main(int argc, char ** argv)
 			}
 			break;
 		}
-		if (ERROR) 
+		if (ERROR)
 		{
 			while (!equit)
 			{
@@ -438,7 +459,7 @@ int main(int argc, char ** argv)
 			SDL_RenderPresent(gRenderer);
 		}
 	}
-	
+
 #ifdef DEBUG
 	debugmalloc_dump();
 #endif

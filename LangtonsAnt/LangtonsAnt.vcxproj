@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ant.c" />
+    <ClCompile Include="colors.c" />
     <ClCompile Include="debugmalloc.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="menu.c" />

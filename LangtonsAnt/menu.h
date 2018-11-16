@@ -13,3 +13,6 @@ void setButtons();
 void setStartButton();
 void setStartButtonStroke();
 void setResButton();
+void setResUp();
+void setResDown();
+void setInstructButton();

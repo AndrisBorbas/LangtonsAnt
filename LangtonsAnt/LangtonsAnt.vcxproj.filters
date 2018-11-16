@@ -60,6 +60,9 @@
     <ClCompile Include="debugmalloc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="colors.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
