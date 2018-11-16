@@ -21,29 +21,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Tutorials\01_hello_SDL.c">
-      <Filter>Source Files\Tutorials</Filter>
-    </ClCompile>
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tutorials\02_getting_an_image_on_the_screen.c">
-      <Filter>Source Files\Tutorials</Filter>
-    </ClCompile>
-    <ClCompile Include="Tutorials\03_event_driven_programming.c">
-      <Filter>Source Files\Tutorials</Filter>
-    </ClCompile>
-    <ClCompile Include="Tutorials\04_key_presses.c">
-      <Filter>Source Files\Tutorials</Filter>
-    </ClCompile>
-    <ClCompile Include="Tutorials\PixelRender.c">
-      <Filter>Source Files\Tutorials</Filter>
-    </ClCompile>
-    <ClCompile Include="szorgalmi6.c">
-      <Filter>Source Files\Stuff</Filter>
-    </ClCompile>
-    <ClCompile Include="test.c">
-      <Filter>Source Files\Stuff</Filter>
     </ClCompile>
     <ClCompile Include="ant.c">
       <Filter>Source Files</Filter>

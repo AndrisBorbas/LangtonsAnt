@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "includes.h"
 
@@ -17,10 +17,10 @@ enum AntHeading
 };
 
 //Turn the ant into the right direction
-bool turnAnt(Ant*, int);
+bool turnAnt(Ant*, int, FILE*);
 
 //The alogorithm for the ants movement
-bool antgorithm(Uint32***, Ant*, SDL_Rect const, int const, int const, int);
+bool antgorithm(Uint32***, Ant*, SDL_Rect const, int const, int const, int, FILE*);
 
 //move ant and invert past location
-bool moveAnt(Uint32***, Ant*, int*, SDL_Rect const, int const, int const, int const, int, char*);
+bool moveAnt(Uint32***, Ant*, int*, SDL_Rect const, int const, int const, int const, int, char*, FILE*);

@@ -1,4 +1,4 @@
-#include "SDLHandler.h"
+﻿#include "SDLHandler.h"
 
 bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN)
 {
@@ -38,9 +38,6 @@ bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixe
 
 bool initTexture(const SDL_Renderer** gRenderer, SDL_Texture** tTexture, SDL_Rect const SCREEN) 
 {
-	//Destroy previous texture
-	if (*tTexture)SDL_DestroyTexture(*tTexture);
-
 	//Initialize screen texture
 	*tTexture = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN.w, SCREEN.h);
 }
@@ -65,14 +62,20 @@ bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 	return true;
 }
 
-void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* tPixelTexture, SDL_Texture* tMainMenu)
+void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* tPixelTexture, SDL_Texture* tMainMenu, SDL_Texture* tStrings, FILE* fAntOut)
 {
+	fprintf(fAntOut, "This run was sponsored by ant gang.");
+	//close output file
+	fclose(fAntOut);
+	//fcloseall();
+
 	//Free up allocated pixel arrays
 	free(*pixels);
 	free(*pixelTex[0]);
 	free(*pixelTex);
 
 	//Destroy textures
+	SDL_DestroyTexture(tStrings);
 	SDL_DestroyTexture(tPixelTexture);
 	SDL_DestroyTexture(tMainMenu);
 	tMainMenu = NULL;

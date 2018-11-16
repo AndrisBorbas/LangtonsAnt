@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "includes.h"
 
@@ -32,6 +32,7 @@ enum HEXRGBA
 	altWHITE = 0xFFFFFFFF,
 	altDARKWHITE = 0xDDDDDDFF,
 	altGRAY = 0x333333FF,
+	altDARKGRAY = 0x111111FF,
 	altBLACK = 0x000000FF
 };
 

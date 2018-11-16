@@ -154,23 +154,6 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="menu.c" />
     <ClCompile Include="SDLHandler.c" />
-    <ClCompile Include="szorgalmi6.c" />
-    <ClCompile Include="test.c" />
-    <ClCompile Include="Tutorials\PixelRender.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Tutorials\01_hello_SDL.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Tutorials\02_getting_an_image_on_the_screen.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Tutorials\03_event_driven_programming.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Tutorials\04_key_presses.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Utilities.c" />
   </ItemGroup>
   <ItemGroup>

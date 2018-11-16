@@ -1,7 +1,6 @@
-#pragma once
+﻿#pragma once
 
 #include "includes.h"
-#include <time.h>
 
 //millisecond based delay
 int delay(int number_of_milliseconds);

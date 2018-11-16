@@ -1,16 +1,9 @@
-#include "menu.h"
+﻿#include "menu.h"
 
 void refreshMenu(SDL_Window** gWindow, const SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN, int Strokesize,
 	SDL_Rect* StartButton, SDL_Rect* StartButtonStroke, SDL_Rect* ResButton, SDL_Rect* ResUp, SDL_Rect* ResDown, SDL_Rect* InstructButton)
 {
 	SDL_SetWindowSize(*gWindow, SCREEN.w, SCREEN.h);
-
-	*tMainMenu = IMG_LoadTexture(*gRenderer, "MainMenu.png");
-	if (!*tMainMenu)
-	{
-		SDL_Log("Failed to open image: %s", IMG_GetError());
-		exit(22);
-	}
 
 	setButtons(SCREEN, Strokesize, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, InstructButton);
 }
@@ -35,7 +28,9 @@ void drawMenu(SDL_Surface** sStrings, TTF_Font** StartFont, TTF_Font** MenuFont,
 	SDL_RenderCopy(*gRenderer, *tStrings, NULL, lStrings);
 
 	roundedBoxColor(*gRenderer, ResUp->x, ResUp->y, ResUp->x + ResUp->w, ResUp->y + ResUp->h, 6, altGRAY);
+	filledTrigonColor(*gRenderer, ResUp->x + 6, ResUp->y + 6, ResUp->x + 6, ResUp->y + ResUp->h - 6, ResUp->x + ResUp->w - 6, ResUp->y + ResUp->h / 2, altDARKWHITE);
 	roundedBoxColor(*gRenderer, ResDown->x, ResDown->y, ResDown->x + ResDown->w, ResDown->y + ResDown->h, 6, altGRAY);
+	filledTrigonColor(*gRenderer, ResDown->x + ResDown->w - 6, ResDown->y + 6, ResDown->x + ResDown->w - 6, ResDown->y + ResDown->h - 6, ResDown->x + 6, ResDown->y + ResDown->h / 2, altDARKWHITE);
 
 	roundedBoxColor(*gRenderer, InstructButton->x, InstructButton->y, InstructButton->x + InstructButton->w, InstructButton->y + InstructButton->h, 6, altGRAY);
 	drawTextintoButton(*gRenderer, sStrings, *InstructFont, tStrings, lStrings, *InstructButton, instructionset, TextORANGE);

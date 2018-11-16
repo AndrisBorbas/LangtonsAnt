@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //#define DEBUG
 
@@ -10,6 +10,8 @@
 #include <math.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
+#include <wchar.h>
 
 #include "colors.h"
 
