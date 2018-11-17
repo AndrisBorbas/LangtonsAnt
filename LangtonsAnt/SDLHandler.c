@@ -36,13 +36,13 @@ bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixe
 	return true;
 }
 
-bool initTexture(const SDL_Renderer** gRenderer, SDL_Texture** tTexture, SDL_Rect const SCREEN) 
+bool initTexture(const SDL_Renderer** gRenderer, SDL_Texture** tTexture, SDL_Rect const SCREEN)
 {
 	//Initialize screen texture
 	*tTexture = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN.w, SCREEN.h);
 }
 
-bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN) 
+bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 {
 	if (*pixels)free(*pixels);
 	if (*pixelTex)free(*pixelTex);
@@ -65,9 +65,12 @@ bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* tPixelTexture, SDL_Texture* tMainMenu, SDL_Texture* tStrings, FILE* fAntOut)
 {
 	//Free up allocated pixel arrays
-	free(*pixels);
-	free(*pixelTex[0]);
-	free(*pixelTex);
+	if (*pixels != NULL)free(*pixels);
+	if (*pixelTex != NULL)
+	{
+		free(*pixelTex[0]);
+		free(*pixelTex);
+	}
 
 	//Destroy textures
 	SDL_DestroyTexture(tStrings);
@@ -88,6 +91,8 @@ void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Rendere
 	SDL_Quit();
 }
 
+//Taken from an online forum to make the program generate images
+//https://stackoverflow.com/questions/34255820/save-sdl-texture-to-file
 void save_texture(SDL_Renderer* gRenderer, SDL_Texture* tTexture, const char *filename)
 {
 	SDL_Texture *tRender;

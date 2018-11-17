@@ -211,15 +211,7 @@ startup:
 
 	num++;
 
-	snprintf(antoutfilename, sizeof antoutfilename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 
-	FILE *fAntOut;
-	fAntOut = fopen(antoutfilename, "w");
-	if (fAntOut == NULL)
-	{
-		printf("Could not open output file: %s", antoutfilename);
-		exit(32);
-	}
 
 	//Draw main menu
 	drawMenu(&sStrings, &StartFont, &MenuFont, &InstructFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
@@ -233,12 +225,14 @@ startup:
 		{
 		case SDL_QUIT:
 			quit = true;
+			goto end;
 			break;
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_ESCAPE:
 				quit = true;
+				goto end;
 				break;
 			}
 		case SDL_MOUSEBUTTONDOWN:
@@ -349,7 +343,7 @@ startup:
 					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
-				}
+					}
 
 				if (SDL_PointInRect(&mouse, &ResDown))
 				{
@@ -393,7 +387,7 @@ startup:
 					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
-				}
+					}
 
 				if (SDL_PointInRect(&mouse, &InstructButton))
 				{
@@ -412,10 +406,10 @@ startup:
 					drawMenu(&sStrings, &StartFont, &MenuFont, &InstructFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
 						SCREEN, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &InstructButton, instructionset);
 				}
-			}
+				}
 			break;
-		}
-	}
+				}
+			}
 
 	//The ant
 	Ant ant = { SCREEN.w / 2 , SCREEN.h / 2 , UP, 0, 0, BLACK };
@@ -455,7 +449,21 @@ startup:
 
 	SDL_RenderClear(gRenderer);
 
-	fprintf(fAntOut, "Dimensions: %dx%d, Scale: %d, Spacing: %d, Margin: %d, Instructionset: %s\n\n", SCREEN.w, SCREEN.h, SCALE, SPACING, ANTMARGIN, instructionset);
+	FILE *fAntOut = NULL;
+
+	if (!quit)
+	{
+		snprintf(antoutfilename, sizeof antoutfilename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+
+		fAntOut = fopen(antoutfilename, "w");
+		if (fAntOut == NULL)
+		{
+			printf("Could not open output file: %s", antoutfilename);
+			exit(32);
+		}
+		fprintf(fAntOut, "Dimensions: %dx%d, Scale: %d, Spacing: %d, Margin: %d, Instructionset: %s\n\n", SCREEN.w, SCREEN.h, SCALE, SPACING, ANTMARGIN, instructionset);
+	}
+
 	Running = true;
 
 	while (!quit)
@@ -492,7 +500,7 @@ startup:
 
 				goto startup;
 			case SDLK_g:
-				j100:
+			j100:
 				for (int i = 0; i < 104; i++)
 				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
@@ -506,7 +514,7 @@ startup:
 				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
 				break;
 			case SDLK_h:
-				j1000:
+			j1000:
 				for (int i = 0; i < 1040; i++)
 				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
@@ -520,7 +528,7 @@ startup:
 				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
 				break;
 			case SDLK_j:
-				j10000:
+			j10000:
 				for (int i = 0; i < 10400; i++)
 				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
@@ -641,6 +649,7 @@ startup:
 	}
 
 	//Free resources and close SDL
+end:
 	close(&pixels, &pixelTex, &gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings, fAntOut);
 	return 0;
-}
+	}
