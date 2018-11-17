@@ -64,11 +64,6 @@ bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 
 void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* tPixelTexture, SDL_Texture* tMainMenu, SDL_Texture* tStrings, FILE* fAntOut)
 {
-	fprintf(fAntOut, "This run was sponsored by ant gang.");
-	//close output file
-	fclose(fAntOut);
-	//fcloseall();
-
 	//Free up allocated pixel arrays
 	free(*pixels);
 	free(*pixelTex[0]);

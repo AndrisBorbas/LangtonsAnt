@@ -8,6 +8,11 @@ int main(int argc, char ** argv)
 
 	if (argc > 1)strcpy(configfilename, argv[1]);
 
+	char antoutfilename[100];
+
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+
 	//The config file
 	FILE *fDefConf;
 	fDefConf = fopen(configfilename, "r+");
@@ -17,22 +22,7 @@ int main(int argc, char ** argv)
 		exit(31);
 	}
 
-	char antoutfilename[100];
 
-	time_t t = time(NULL);
-	struct tm tm = *localtime(&t);
-
-	mkdir("./Runs");
-
-	snprintf(antoutfilename, sizeof antoutfilename, "./Runs/antout_%d-%d-%d_%d-%d-%d.txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-
-	FILE *fAntOut;
-	fAntOut = fopen(antoutfilename, "w");
-	if (fAntOut == NULL)
-	{
-		printf("Could not open output file: %s", antoutfilename);
-		exit(32);
-	}
 
 	//Buffer for reading from file
 	char buffer[52] = "";
@@ -145,6 +135,10 @@ int main(int argc, char ** argv)
 	bool Running = true;
 	//Is there an error
 	bool ERROR = false;
+	//Did the simulation ever start
+	bool simulated = false;
+	//Wasd the simulation paused before exit
+	bool paused = false;
 
 	//The viewport window
 	SDL_Window *gWindow = NULL;
@@ -208,13 +202,28 @@ int main(int argc, char ** argv)
 
 	SDL_Rect tempSCREEN = SCREEN;
 
+	SDL_Event event;
+
+	int iter = 0;
+	int num = 0;
+
+startup:
+
+	num++;
+
+	snprintf(antoutfilename, sizeof antoutfilename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+
+	FILE *fAntOut;
+	fAntOut = fopen(antoutfilename, "w");
+	if (fAntOut == NULL)
+	{
+		printf("Could not open output file: %s", antoutfilename);
+		exit(32);
+	}
+
 	//Draw main menu
 	drawMenu(&sStrings, &StartFont, &MenuFont, &InstructFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
 		SCREEN, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &InstructButton, instructionset);
-
-	SDL_Event event;
-
-	int n = 0;
 
 	while (!quit && !start)
 	{
@@ -228,7 +237,9 @@ int main(int argc, char ** argv)
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym)
 			{
-
+			case SDLK_ESCAPE:
+				quit = true;
+				break;
 			}
 		case SDL_MOUSEBUTTONDOWN:
 			//Darken buttons on mousedown
@@ -386,13 +397,13 @@ int main(int argc, char ** argv)
 
 				if (SDL_PointInRect(&mouse, &InstructButton))
 				{
-					strcpy(instructionset, instructions[n]);
+					strcpy(instructionset, instructions[iter]);
 					roundedBoxColor(gRenderer, InstructButton.x, InstructButton.y, InstructButton.x + InstructButton.w, InstructButton.y + InstructButton.h, 6, altGRAY);
 					drawTextintoButton(gRenderer, &sStrings, InstructFont, &tStrings, &lStrings, InstructButton, instructionset, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
-					if (n >= 8)n = 0;
-					else n++;
+					if (iter >= 8)iter = 0;
+					else iter++;
 				}
 
 				if (!SDL_PointInRect(&mouse, &InstructButton) && !SDL_PointInRect(&mouse, &ResDown) && !SDL_PointInRect(&mouse, &ResUp) &&
@@ -444,9 +455,12 @@ int main(int argc, char ** argv)
 
 	SDL_RenderClear(gRenderer);
 
+	fprintf(fAntOut, "Dimensions: %dx%d, Scale: %d, Spacing: %d, Margin: %d, Instructionset: %s\n\n", SCREEN.w, SCREEN.h, SCALE, SPACING, ANTMARGIN, instructionset);
+	Running = true;
+
 	while (!quit)
 	{
-		fprintf(fAntOut, "Dimensions: %dx%d, Scale: %d, Spacing: %d, Margin: %d, Instructionset: %s\n\n", SCREEN.w, SCREEN.h, SCALE, SPACING, ANTMARGIN, instructionset);
+		simulated = true;
 
 		SDL_WaitEvent(&event);
 
@@ -454,11 +468,31 @@ int main(int argc, char ** argv)
 		{
 		case SDL_QUIT:
 			quit = true;
+			paused = false;
 			break;
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym)
 			{
+			case SDLK_ESCAPE:
+				Running = false;
+				paused = false;
+				quit = true;
+				break;
+			case SDLK_p:
+				paused = true;
+				Running = false;
+				start = false;
+
+				fprintf(fAntOut, "\nThis run was sponsored by ant gang.");
+				fclose(fAntOut);
+
+				char antouttexturename[100];
+				snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+				save_texture(gRenderer, tPixelTexture, antouttexturename);
+
+				goto startup;
 			case SDLK_g:
+				j100:
 				for (int i = 0; i < 104; i++)
 				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
@@ -472,6 +506,7 @@ int main(int argc, char ** argv)
 				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
 				break;
 			case SDLK_h:
+				j1000:
 				for (int i = 0; i < 1040; i++)
 				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
@@ -485,6 +520,7 @@ int main(int argc, char ** argv)
 				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
 				break;
 			case SDLK_j:
+				j10000:
 				for (int i = 0; i < 10400; i++)
 				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
@@ -522,12 +558,40 @@ int main(int argc, char ** argv)
 				{
 				case SDL_QUIT:
 					quit = true;
+					paused = false;
 					break;
 				case SDL_KEYDOWN:
 					switch (event.key.keysym.sym)
 					{
 					case SDLK_SPACE:
 						Running = false;
+						break;
+					case SDLK_ESCAPE:
+						Running = false;
+						paused = false;
+						quit = true;
+						break;
+					case SDLK_p:
+						paused = true;
+						Running = false;
+						start = false;
+
+						fprintf(fAntOut, "\nThis run was sponsored by ant gang.");
+						fclose(fAntOut);
+
+						char antouttexturename[100];
+						snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+						save_texture(gRenderer, tPixelTexture, antouttexturename);
+
+						goto startup;
+					case SDLK_g:
+						goto j100;
+						break;
+					case SDLK_h:
+						goto j1000;
+						break;
+					case SDLK_j:
+						goto j10000;
 						break;
 					}
 				}
@@ -559,9 +623,22 @@ int main(int argc, char ** argv)
 	debugmalloc_dump();
 #endif
 
-	char antouttexturename[100];
-	snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%d-%d-%d.bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-	save_texture(gRenderer, tPixelTexture, antouttexturename);
+	if (simulated)
+	{
+		fprintf(fAntOut, "This run was sponsored by ant gang.");
+	}
+	else
+	{
+		fprintf(fAntOut, "Run never started.");
+	}
+	fclose(fAntOut);
+
+	if (simulated && !paused)
+	{
+		char antouttexturename[100];
+		snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+		save_texture(gRenderer, tPixelTexture, antouttexturename);
+	}
 
 	//Free resources and close SDL
 	close(&pixels, &pixelTex, &gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings, fAntOut);
