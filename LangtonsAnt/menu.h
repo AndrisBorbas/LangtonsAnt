@@ -16,3 +16,4 @@ void setResButton();
 void setResUp();
 void setResDown();
 void setInstructButton();
+void setScaleButton();

@@ -21,4 +21,5 @@ void loadcharFromConfig(FILE*, char*, char*, char*);
 Uint32 ftick(Uint32, void*);
 
 //Draw text into the middle of a button
-bool drawTextintoButton(SDL_Renderer*, SDL_Surface*, TTF_Font*, SDL_Texture**, SDL_Rect*, SDL_Rect, char*, SDL_Color);
+void drawTextintoButton(SDL_Renderer*, SDL_Surface*, TTF_Font*, SDL_Texture**, SDL_Rect*, SDL_Rect, char, SDL_Color);
+

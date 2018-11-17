@@ -42,7 +42,7 @@ bool convertPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 	return true;
 }
 
-bool drawTextintoButton(SDL_Renderer* gRenderer, SDL_Surface* sStrings, TTF_Font* font, SDL_Texture** tStrings, SDL_Rect* lStrings, SDL_Rect button, char text[], SDL_Color color) 
+void drawTextintoButton(SDL_Renderer* gRenderer, SDL_Surface* sStrings, TTF_Font* font, SDL_Texture** tStrings, SDL_Rect* lStrings, SDL_Rect button, char text[], SDL_Color color) 
 {
 	sStrings = TTF_RenderUTF8_Blended(font, text, color);
 	*tStrings = SDL_CreateTextureFromSurface(gRenderer, sStrings);
