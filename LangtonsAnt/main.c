@@ -504,6 +504,8 @@ startup:
 
 	if (!quit)
 	{
+		mkdir("./Runs");
+
 		snprintf(antoutfilename, sizeof antoutfilename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 
 		fAntOut = fopen(antoutfilename, "w");
