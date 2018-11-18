@@ -30,7 +30,7 @@ Uint32 ftick(Uint32 ms, void *param)
 	return ms;
 }
 
-bool convertPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN) 
+void convertPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN) 
 {
 	for (int i = 0; i < SCREEN.w; i++)
 	{
@@ -39,12 +39,11 @@ bool convertPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 			(*pixels)[i + j * SCREEN.w] = (*pixelTex)[i][j];
 		}
 	}
-	return true;
 }
 
-void drawTextintoButton(SDL_Renderer* gRenderer, SDL_Surface* sStrings, TTF_Font* font, SDL_Texture** tStrings, SDL_Rect* lStrings, SDL_Rect button, char text[], SDL_Color color) 
+void drawTextintoButton(SDL_Renderer* gRenderer, TTF_Font* font, SDL_Texture** tStrings, SDL_Rect* lStrings, SDL_Rect button, char* text, SDL_Color color) 
 {
-	sStrings = TTF_RenderUTF8_Blended(font, text, color);
+	SDL_Surface* sStrings = TTF_RenderUTF8_Blended(font, text, color);
 	*tStrings = SDL_CreateTextureFromSurface(gRenderer, sStrings);
 	lStrings->x = (button.x + button.w / 2 - sStrings->w / 2);
 	lStrings->y = (button.y + button.h / 2 - sStrings->h / 2);
@@ -61,7 +60,7 @@ void loadintFromConfig(FILE* wDefConf, char* buffer, int* variable, char* variab
 	if (strcmp(buffer, ctemp) == 0)
 	{
 		fscanf(wDefConf, "%s%d", &buffer, &temp);
-#ifdef DEBUG
+#ifdef Debug
 		printf("%d\n", temp);
 #endif
 		*variable = temp;
@@ -76,7 +75,7 @@ void loadcharFromConfig(FILE* wDefConf, char* buffer, char* variable, char* vari
 	if (strcmp(buffer, ctemp) == 0)
 	{
 		fscanf(wDefConf, "%s%s", &buffer, &temp);
-#ifdef DEBUG
+#ifdef Debug
 		printf("%s\n", temp);
 #endif
 		strcpy(variable, temp);

@@ -14,4 +14,5 @@ bool initTexture(SDL_Renderer**, SDL_Texture**, SDL_Rect const);
 //Initializes the pixel arrays
 bool initPixels(Uint32**, Uint32***, SDL_Rect const);
 
+//Save current run to BMP
 void save_texture(SDL_Renderer*, SDL_Texture*, const char*);

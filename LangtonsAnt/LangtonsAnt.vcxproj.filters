@@ -36,9 +36,6 @@
     <ClCompile Include="menu.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="debugmalloc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="colors.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,9 +60,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="menu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="debugmalloc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-//#define DEBUG
+//#define Debug
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -14,7 +14,3 @@
 #include <wchar.h>
 
 #include "colors.h"
-
-#ifdef DEBUG
-#include "debugmalloc.h"
-#endif // DEBUG

@@ -150,7 +150,6 @@
   <ItemGroup>
     <ClCompile Include="ant.c" />
     <ClCompile Include="colors.c" />
-    <ClCompile Include="debugmalloc.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="menu.c" />
     <ClCompile Include="SDLHandler.c" />
@@ -159,7 +158,6 @@
   <ItemGroup>
     <ClInclude Include="ant.h" />
     <ClInclude Include="colors.h" />
-    <ClInclude Include="debugmalloc.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="menu.h" />

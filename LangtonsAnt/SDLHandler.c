@@ -91,8 +91,11 @@ void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Rendere
 	SDL_Quit();
 }
 
+////////////////////////////////////////////////////////////////
 //Taken from an online forum to make the program generate images
 //https://stackoverflow.com/questions/34255820/save-sdl-texture-to-file
+///////////////////////////////////////////////////////////////////////
+
 void save_texture(SDL_Renderer* gRenderer, SDL_Texture* tTexture, const char *filename)
 {
 	SDL_Texture *tRender;

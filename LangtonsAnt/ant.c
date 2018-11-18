@@ -4,7 +4,7 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, SDL_Rect const SCREEN, in
 {
 	(*lepes)++;
 
-#ifdef DEBUG
+#ifdef Debug
 	printf("%d. lepes: ", *lepes);
 #endif
 
@@ -130,7 +130,7 @@ bool turnAnt(Ant* ant, int tile, FILE* fAntOut)
 	if (ant->heading > 270) ant->heading = ant->heading - 360;
 	if (ant->heading < 0) ant->heading = ant->heading + 360;
 	ant->lasttile = tile;
-#ifdef DEBUG
+#ifdef Debug
 	switch (ant->turn[ant->currenttile]) {
 	case 90:
 		printf("jobb\n");

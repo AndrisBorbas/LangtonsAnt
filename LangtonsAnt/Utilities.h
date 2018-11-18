@@ -9,7 +9,7 @@ int delay(int number_of_milliseconds);
 void memset32(void*, Uint32, uintptr_t);
 
 //Converts pixel texture to sdl pixel format
-bool convertPixels(Uint32**, Uint32***, SDL_Rect const);
+void convertPixels(Uint32**, Uint32***, SDL_Rect const);
 
 //Loads the configuration into int variables
 void loadintFromConfig(FILE*, char*, int*, char*);
@@ -21,5 +21,5 @@ void loadcharFromConfig(FILE*, char*, char*, char*);
 Uint32 ftick(Uint32, void*);
 
 //Draw text into the middle of a button
-void drawTextintoButton(SDL_Renderer*, SDL_Surface*, TTF_Font*, SDL_Texture**, SDL_Rect*, SDL_Rect, char, SDL_Color);
+void drawTextintoButton(SDL_Renderer*, TTF_Font*, SDL_Texture**, SDL_Rect*, SDL_Rect, char*, SDL_Color);
 

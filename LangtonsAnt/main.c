@@ -4,12 +4,14 @@
 
 int main(int argc, char ** argv)
 {
+	//Default config name
 	char configfilename[52] = "config.ini";
-
+	//Set config name from command line
 	if (argc > 1)strcpy(configfilename, argv[1]);
-
+	//Filename to save instructions to
 	char antoutfilename[100];
 
+	//Time for filenames
 	time_t t = time(NULL);
 	struct tm tm = *localtime(&t);
 
@@ -19,10 +21,7 @@ int main(int argc, char ** argv)
 	if (fDefConf == NULL)
 	{
 		printf("Could not open config file.");
-		exit(31);
 	}
-
-
 
 	//Buffer for reading from file
 	char buffer[52] = "";
@@ -63,28 +62,38 @@ int main(int argc, char ** argv)
 	//Number of steps made by the ant;
 	int lepes = 0;
 
-	//Load values from config file
-	while ((strstr(buffer, "endconfig;")) == NULL)
-	{
-		fscanf(fDefConf, "%s", &buffer);
-		if (buffer[0] == '/')continue;
+	/////////
+	//Loading
+	/////////
 
-		if (buffer[0] == '#')
+	if (fDefConf != NULL)
+	{
+		//Load values from config file
+		while ((strstr(buffer, "endconfig;")) == NULL)
 		{
-			loadintFromConfig(fDefConf, buffer, &SCREEN.w, "SCREEN_WIDTH");
-			loadintFromConfig(fDefConf, buffer, &SCREEN.h, "SCREEN_HEIGHT");
-			loadintFromConfig(fDefConf, buffer, &SCALE, "SCALE");
-			loadintFromConfig(fDefConf, buffer, &SPACING, "SPACING");
-			loadintFromConfig(fDefConf, buffer, &ANTMARGIN, "ANTMARGIN");
-			loadintFromConfig(fDefConf, buffer, &MSTICK, "MSTICK");
-			loadcharFromConfig(fDefConf, buffer, &instructionset, "INSTRUCTIONSET");
+			fscanf(fDefConf, "%s", &buffer);
+			if (buffer[0] == '/')continue;
+
+			if (buffer[0] == '#')
+			{
+				loadintFromConfig(fDefConf, buffer, &SCREEN.w, "SCREEN_WIDTH");
+				loadintFromConfig(fDefConf, buffer, &SCREEN.h, "SCREEN_HEIGHT");
+				loadintFromConfig(fDefConf, buffer, &SCALE, "SCALE");
+				loadintFromConfig(fDefConf, buffer, &SPACING, "SPACING");
+				loadintFromConfig(fDefConf, buffer, &ANTMARGIN, "ANTMARGIN");
+				loadintFromConfig(fDefConf, buffer, &MSTICK, "MSTICK");
+				loadcharFromConfig(fDefConf, buffer, &instructionset, "INSTRUCTIONSET");
+			}
 		}
 	}
 	fclose(fDefConf);
 
+	//Number of instructions
 	int instructnum = strlen(instructionset);
 
+	/////////
 	//Buttons
+	/////////
 	SDL_Rect StartButton;
 	StartButton.w = 252;
 	StartButton.h = 80;
@@ -105,7 +114,6 @@ int main(int argc, char ** argv)
 	SDL_Rect ResDown;
 	ResDown.w = 34;
 	ResDown.h = 34;
-
 
 	SDL_Rect InstructButton;
 	InstructButton.w = 200;
@@ -134,7 +142,7 @@ int main(int argc, char ** argv)
 	bool ERROR = false;
 	//Did the simulation ever start
 	bool simulated = false;
-	//Wasd the simulation paused before exit
+	//Was the simulation paused before exit
 	bool paused = false;
 
 	//The viewport window
@@ -151,9 +159,8 @@ int main(int argc, char ** argv)
 	SDL_Texture *tPixelTexture = NULL;
 	SDL_Texture *tMainMenu = NULL;
 
-	//Strings
+	//Helpers for printing text on the screen
 	SDL_Texture *tStrings = NULL;
-	SDL_Surface *sStrings = NULL;
 	SDL_Rect lStrings = { 1,0,0,0 };
 
 	//Mouse location
@@ -182,6 +189,7 @@ int main(int argc, char ** argv)
 		exit(12);
 	}
 
+	//Load InstructionsFont
 	TTF_Font *InstructFont = TTF_OpenFont("ExodusDemo-Striped.otf", 20);
 	if (!InstructFont)
 	{
@@ -189,6 +197,7 @@ int main(int argc, char ** argv)
 		exit(13);
 	}
 
+	//Load HelpFont
 	TTF_Font *HelpFont = TTF_OpenFont("ExodusDemo-Striped.otf", 20);
 	if (!HelpFont)
 	{
@@ -200,21 +209,25 @@ int main(int argc, char ** argv)
 	tMainMenu = IMG_LoadTexture(gRenderer, "menu4k.png");
 	if (!tMainMenu)
 	{
-		SDL_Log("Failed to open image: %s", IMG_GetError());
+		SDL_Log("Failed to open 4k image: %s", IMG_GetError());
 		//Fallback 1k image
 		tMainMenu = IMG_LoadTexture(gRenderer, "menuhd.png");
 		if (!tMainMenu)
 		{
-			SDL_Log("Failed to open image: %s", IMG_GetError());
+			SDL_Log("Failed to open HD image: %s", IMG_GetError());
 			exit(21);
 		}
 	}
 
+	//Temporarily store values to load on hitting apply
 	SDL_Rect tempSCREEN = SCREEN;
 
+	//The events that handle keypresses and timers
 	SDL_Event event;
 
+	//Iterator to go through the loaded instructionsets
 	int iter = 0;
+	//Number of restarts to the menu
 	int num = 0;
 
 	//help texts
@@ -225,10 +238,11 @@ startup:
 
 	num++;
 
+	//Set the position of the buttons
 	refreshMenu(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, Strokesize, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &ScaleButton, &InstructButton);
 
 	//Draw main menu
-	drawMenu(&sStrings, &StartFont, &MenuFont, &InstructFont, &HelpFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
+	drawMenu(&StartFont, &MenuFont, &InstructFont, &HelpFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
 		SCREEN, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, SCALE, InstructButton, instructionset);
 
 	while (!quit && !start)
@@ -259,7 +273,7 @@ startup:
 				{
 					roundedBoxColor(gRenderer, StartButtonStroke.x, StartButtonStroke.y, StartButtonStroke.x + StartButtonStroke.w, StartButtonStroke.y + StartButtonStroke.h, 12, altBLACK);
 					roundedBoxColor(gRenderer, StartButton.x, StartButton.y, StartButton.x + StartButton.w, StartButton.y + StartButton.h, 12, altDARKGRAY);
-					drawTextintoButton(gRenderer, &sStrings, StartFont, &tStrings, &lStrings, StartButton, "Start", TextORANGE);
+					drawTextintoButton(gRenderer, StartFont, &tStrings, &lStrings, StartButton, "Start", TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
 				}
@@ -269,7 +283,7 @@ startup:
 					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altDARKGRAY);
 					char buff[sizeof(int) * 19 + 2];
 					snprintf(buff, sizeof buff, "%dx%d", SCREEN.w, SCREEN.h);
-					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
+					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
 				}
@@ -293,7 +307,7 @@ startup:
 					roundedBoxColor(gRenderer, ScaleButton.x, ScaleButton.y, ScaleButton.x + ScaleButton.w, ScaleButton.y + ScaleButton.h, 6, altDARKGRAY);
 					char sbuff[sizeof(int) * 1 + 8];
 					snprintf(sbuff, sizeof sbuff, "Scale: %d", SCALE);
-					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ScaleButton, sbuff, TextDARKORANGE);
+					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ScaleButton, sbuff, TextDARKORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
 				}
@@ -301,7 +315,7 @@ startup:
 				if (SDL_PointInRect(&mouse, &InstructButton))
 				{
 					roundedBoxColor(gRenderer, InstructButton.x, InstructButton.y, InstructButton.x + InstructButton.w, InstructButton.y + InstructButton.h, 6, altDARKGRAY);
-					drawTextintoButton(gRenderer, &sStrings, InstructFont, &tStrings, &lStrings, InstructButton, instructionset, TextORANGE);
+					drawTextintoButton(gRenderer, InstructFont, &tStrings, &lStrings, InstructButton, instructionset, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
 				}
@@ -321,7 +335,7 @@ startup:
 				{
 					SCREEN = tempSCREEN;
 					refreshMenu(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, Strokesize, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &ScaleButton, &InstructButton);
-					drawMenu(&sStrings, &StartFont, &MenuFont, &InstructFont, &HelpFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
+					drawMenu(&StartFont, &MenuFont, &InstructFont, &HelpFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
 						SCREEN, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, SCALE, InstructButton, instructionset);
 				}
 
@@ -358,13 +372,13 @@ startup:
 						tempSCREEN.h = 960;
 						break;
 					}
-#ifdef DEBUG
+#ifdef Debug
 					printf("%d\n", tempSCREEN.w);
 #endif
 					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
 					char buff[sizeof(int) * 2 + 2];
 					snprintf(buff, sizeof buff, "%dx%d", tempSCREEN.w, tempSCREEN.h);
-					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
+					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 
 					roundedBoxColor(gRenderer, ResUp.x, ResUp.y, ResUp.x + ResUp.w, ResUp.y + ResUp.h, 6, altGRAY);
@@ -406,13 +420,13 @@ startup:
 						tempSCREEN.h = 960;
 						break;
 					}
-#ifdef DEBUG
+#ifdef Debug
 					printf("%d\n", tempSCREEN.w);
 #endif
 					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
 					char buff[sizeof(int) * 2 + 2];
 					snprintf(buff, sizeof buff, "%dx%d", tempSCREEN.w, tempSCREEN.h);
-					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
+					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 
 					roundedBoxColor(gRenderer, ResDown.x, ResDown.y, ResDown.x + ResDown.w, ResDown.y + ResDown.h, 6, altGRAY);
@@ -425,7 +439,7 @@ startup:
 					strcpy(instructionset, instructions[iter]);
 					instructnum = strlen(instructionset);
 					roundedBoxColor(gRenderer, InstructButton.x, InstructButton.y, InstructButton.x + InstructButton.w, InstructButton.y + InstructButton.h, 6, altGRAY);
-					drawTextintoButton(gRenderer, &sStrings, InstructFont, &tStrings, &lStrings, InstructButton, instructionset, TextORANGE);
+					drawTextintoButton(gRenderer, InstructFont, &tStrings, &lStrings, InstructButton, instructionset, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
 					if (iter >= 8)iter = 0;
@@ -446,7 +460,7 @@ startup:
 					roundedBoxColor(gRenderer, ScaleButton.x, ScaleButton.y, ScaleButton.x + ScaleButton.w, ScaleButton.y + ScaleButton.h, 6, altGRAY);
 					char sbuff[sizeof(int) * 1 + 8];
 					snprintf(sbuff, sizeof sbuff, "Scale: %d", SCALE);
-					drawTextintoButton(gRenderer, &sStrings, MenuFont, &tStrings, &lStrings, ScaleButton, sbuff, TextORANGE);
+					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ScaleButton, sbuff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
 				}
@@ -454,7 +468,7 @@ startup:
 				if (!SDL_PointInRect(&mouse, &InstructButton) && !SDL_PointInRect(&mouse, &ResDown) && !SDL_PointInRect(&mouse, &ResUp) &&
 					!SDL_PointInRect(&mouse, &ResButton) && !SDL_PointInRect(&mouse, &StartButton))
 				{
-					drawMenu(&sStrings, &StartFont, &MenuFont, &InstructFont, &HelpFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
+					drawMenu(&StartFont, &MenuFont, &InstructFont, &HelpFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
 						SCREEN, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, SCALE, InstructButton, instructionset);
 				}
 			}
@@ -506,7 +520,7 @@ startup:
 	{
 		mkdir("./Runs");
 
-		snprintf(antoutfilename, sizeof antoutfilename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+		snprintf(antoutfilename, sizeof antoutfilename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 
 		fAntOut = fopen(antoutfilename, "w");
 		if (fAntOut == NULL)
@@ -550,7 +564,7 @@ startup:
 				fclose(fAntOut);
 
 				char antouttexturename[100];
-				snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+				snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 				save_texture(gRenderer, tPixelTexture, antouttexturename);
 
 				goto startup;
@@ -643,7 +657,7 @@ startup:
 						fclose(fAntOut);
 
 						char antouttexturename[100];
-						snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+						snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 						save_texture(gRenderer, tPixelTexture, antouttexturename);
 
 						goto startup;
@@ -679,16 +693,13 @@ startup:
 		{
 			SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
 			SDL_RenderPresent(gRenderer);
+		}
 	}
-}
-
-#ifdef DEBUG
-	debugmalloc_dump();
-#endif
 
 	if (simulated)
 	{
 		fprintf(fAntOut, "This run was sponsored by ant gang.");
+		SDL_Log("Saved instructions as TXT to \"%s\"\n", antoutfilename);
 	}
 	else
 	{
@@ -699,7 +710,7 @@ startup:
 	if (simulated && !paused)
 	{
 		char antouttexturename[100];
-		snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%d-%d-%d(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+		snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 		save_texture(gRenderer, tPixelTexture, antouttexturename);
 	}
 
@@ -707,4 +718,4 @@ startup:
 end:
 	close(&pixels, &pixelTex, &gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings);
 	return 0;
-	}
+}
