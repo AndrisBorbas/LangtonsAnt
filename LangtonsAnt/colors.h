@@ -2,6 +2,7 @@
 
 #include "includes.h"
 
+//Colors for coloring the pixels drawn by the ant
 enum HEXARGB
 {
 	BLACK = 0xFF000000,
@@ -27,6 +28,7 @@ enum HEXARGB
 	LAVENDER = 0xFFE6BEFF
 };
 
+//Colors for drawing the menu
 enum HEXRGBA
 {
 	altWHITE = 0xFFFFFFFF,
@@ -37,4 +39,5 @@ enum HEXRGBA
 	altBLACK = 0x000000FF
 };
 
+//Colors for texts
 extern SDL_Color TextDARKWHITE, TextORANGE, TextDARKORANGE;

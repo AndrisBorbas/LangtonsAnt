@@ -20,7 +20,7 @@ int main(int argc, char ** argv)
 	fDefConf = fopen(configfilename, "r+");
 	if (fDefConf == NULL)
 	{
-		printf("Could not open config file.");
+		SDL_Log("Could not open config file.");
 	}
 
 	//Buffer for reading from file
@@ -140,8 +140,6 @@ int main(int argc, char ** argv)
 	bool Running = true;
 	//Is there an error
 	bool ERROR = false;
-	//Did the simulation ever start
-	bool simulated = false;
 	//Was the simulation paused before exit
 	bool paused = false;
 
@@ -169,7 +167,7 @@ int main(int argc, char ** argv)
 	//Start up SDL and create window
 	if (!initSDL(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN))
 	{
-		printf("Failed to initialize: %s", SDL_GetError());
+		SDL_Log("Failed to initialize: %s", SDL_GetError());
 		exit(1);
 	}
 
@@ -233,9 +231,10 @@ int main(int argc, char ** argv)
 	//help texts
 	char help[5][14] = { "space: pause","p: menu", "g: jump 100", "h: jump 1000", "j: jump 10000" };
 
-
+	//Start of the main loop
 startup:
 
+	//Increase the number of runs
 	num++;
 
 	//Set the position of the buttons
@@ -245,8 +244,10 @@ startup:
 	drawMenu(&StartFont, &MenuFont, &InstructFont, &HelpFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
 		SCREEN, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, SCALE, InstructButton, instructionset);
 
+	//Handle events in the menu
 	while (!quit && !start)
 	{
+		//Queue up input and timer events
 		SDL_WaitEvent(&event);
 
 		switch (event.type)
@@ -282,7 +283,7 @@ startup:
 				{
 					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altDARKGRAY);
 					char buff[sizeof(int) * 19 + 2];
-					snprintf(buff, sizeof buff, "%dx%d", SCREEN.w, SCREEN.h);
+					sprintf(buff, "%dx%d", SCREEN.w, SCREEN.h);
 					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
@@ -306,7 +307,7 @@ startup:
 				{
 					roundedBoxColor(gRenderer, ScaleButton.x, ScaleButton.y, ScaleButton.x + ScaleButton.w, ScaleButton.y + ScaleButton.h, 6, altDARKGRAY);
 					char sbuff[sizeof(int) * 1 + 8];
-					snprintf(sbuff, sizeof sbuff, "Scale: %d", SCALE);
+					sprintf(sbuff, "Scale: %d", SCALE);
 					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ScaleButton, sbuff, TextDARKORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
@@ -326,11 +327,13 @@ startup:
 			{
 				SDL_GetMouseState(&mouse.x, &mouse.y);
 
+				//Start on clicking start button
 				if (SDL_PointInRect(&mouse, &StartButton))
 				{
 					start = true;
 				}
 
+				//Apply resolution change on resolution display button
 				if (SDL_PointInRect(&mouse, &ResButton))
 				{
 					SCREEN = tempSCREEN;
@@ -339,6 +342,7 @@ startup:
 						SCREEN, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, SCALE, InstructButton, instructionset);
 				}
 
+				//Change resolution when clicking the arrow to the right
 				if (SDL_PointInRect(&mouse, &ResUp))
 				{
 					switch (tempSCREEN.w)
@@ -377,7 +381,7 @@ startup:
 #endif
 					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
 					char buff[sizeof(int) * 2 + 2];
-					snprintf(buff, sizeof buff, "%dx%d", tempSCREEN.w, tempSCREEN.h);
+					sprintf(buff, "%dx%d", tempSCREEN.w, tempSCREEN.h);
 					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 
@@ -387,6 +391,7 @@ startup:
 					SDL_RenderPresent(gRenderer);
 				}
 
+				//Change resolution when clicking the arrow to the left
 				if (SDL_PointInRect(&mouse, &ResDown))
 				{
 					switch (tempSCREEN.w)
@@ -425,7 +430,7 @@ startup:
 #endif
 					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altGRAY);
 					char buff[sizeof(int) * 2 + 2];
-					snprintf(buff, sizeof buff, "%dx%d", tempSCREEN.w, tempSCREEN.h);
+					sprintf(buff, "%dx%d", tempSCREEN.w, tempSCREEN.h);
 					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 
@@ -434,6 +439,7 @@ startup:
 					SDL_RenderPresent(gRenderer);
 				}
 
+				//Change instructionset when clicking that button
 				if (SDL_PointInRect(&mouse, &InstructButton))
 				{
 					strcpy(instructionset, instructions[iter]);
@@ -446,6 +452,7 @@ startup:
 					else iter++;
 				}
 
+				//Change the size of the pixels when clicking on that button
 				if (SDL_PointInRect(&mouse, &ScaleButton))
 				{
 					if (SCALE == 4) {
@@ -459,12 +466,13 @@ startup:
 					}
 					roundedBoxColor(gRenderer, ScaleButton.x, ScaleButton.y, ScaleButton.x + ScaleButton.w, ScaleButton.y + ScaleButton.h, 6, altGRAY);
 					char sbuff[sizeof(int) * 1 + 8];
-					snprintf(sbuff, sizeof sbuff, "Scale: %d", SCALE);
+					sprintf(sbuff, "Scale: %d", SCALE);
 					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ScaleButton, sbuff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
 				}
 
+				//Redraw menu when clicked elsewhere so buttons don't stay darkened
 				if (!SDL_PointInRect(&mouse, &InstructButton) && !SDL_PointInRect(&mouse, &ResDown) && !SDL_PointInRect(&mouse, &ResUp) &&
 					!SDL_PointInRect(&mouse, &ResButton) && !SDL_PointInRect(&mouse, &StartButton))
 				{
@@ -502,8 +510,6 @@ startup:
 		}
 	}
 
-
-
 	//Initialize pixel texture
 	initTexture(&gRenderer, &tPixelTexture, SCREEN);
 	//Initialize pixel arrays
@@ -518,14 +524,15 @@ startup:
 
 	if (!quit)
 	{
+		//Output folder
 		mkdir("./Runs");
-
-		snprintf(antoutfilename, sizeof antoutfilename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+		//Filename based on programs start time
+		sprintf(antoutfilename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).txt", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 
 		fAntOut = fopen(antoutfilename, "w");
 		if (fAntOut == NULL)
 		{
-			printf("Could not open output file: %s", antoutfilename);
+			SDL_Log("Could not open output file: %s", antoutfilename);
 			exit(32);
 		}
 		fprintf(fAntOut, "Dimensions: %dx%d, Scale: %d, Spacing: %d, Margin: %d, Instructionset: %s\n\n", SCREEN.w, SCREEN.h, SCALE, SPACING, ANTMARGIN, instructionset);
@@ -535,10 +542,9 @@ startup:
 
 	Running = true;
 
+	//Simulation loop
 	while (!quit)
 	{
-		simulated = true;
-
 		SDL_WaitEvent(&event);
 
 		switch (event.type)
@@ -560,13 +566,15 @@ startup:
 				Running = false;
 				start = false;
 
+				//Save on returning to menu
 				fprintf(fAntOut, "\nThis run was sponsored by ant gang.");
 				fclose(fAntOut);
 
 				char antouttexturename[100];
-				snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+				sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 				save_texture(gRenderer, tPixelTexture, antouttexturename);
 
+				//Return to menu
 				goto startup;
 			case SDLK_g:
 			j100:
@@ -574,6 +582,7 @@ startup:
 				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
 					{
+						SDL_Log("Error while trying to move ant: %s", SDL_GetError());
 						ERROR = true;
 						quit = true;
 						break;
@@ -588,6 +597,7 @@ startup:
 				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
 					{
+						SDL_Log("Error while trying to move ant: %s", SDL_GetError());
 						ERROR = true;
 						quit = true;
 						break;
@@ -602,6 +612,7 @@ startup:
 				{
 					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
 					{
+						SDL_Log("Error while trying to move ant: %s", SDL_GetError());
 						ERROR = true;
 						quit = true;
 						break;
@@ -619,7 +630,7 @@ startup:
 			{
 				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
 				{
-					printf("Error while trying to move ant: %s", SDL_GetError());
+					SDL_Log("Error while trying to move ant: %s", SDL_GetError());
 					ERROR = true;
 					quit = true;
 				}
@@ -653,13 +664,15 @@ startup:
 						Running = false;
 						start = false;
 
+						//Save on returning to menu
 						fprintf(fAntOut, "\nThis run was sponsored by ant gang.");
 						fclose(fAntOut);
 
 						char antouttexturename[100];
-						snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+						sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 						save_texture(gRenderer, tPixelTexture, antouttexturename);
 
+						//Return to menu start on hitting p
 						goto startup;
 					case SDLK_g:
 						goto j100;
@@ -696,26 +709,19 @@ startup:
 		}
 	}
 
-	if (simulated)
-	{
-		fprintf(fAntOut, "This run was sponsored by ant gang.");
-		SDL_Log("Saved instructions as TXT to \"%s\"\n", antoutfilename);
-	}
-	else
-	{
-		fprintf(fAntOut, "Run never started.");
-	}
+	fprintf(fAntOut, "This run was sponsored by ant gang.");
+	SDL_Log("Saved instructions as TXT to \"%s\"\n", antoutfilename);
 	fclose(fAntOut);
 
-	if (simulated && !paused)
+	if (!paused)
 	{
 		char antouttexturename[100];
-		snprintf(antouttexturename, sizeof antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+		sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 		save_texture(gRenderer, tPixelTexture, antouttexturename);
 	}
 
-	//Free resources and close SDL
 end:
+	//Free resources and close SDL
 	close(&pixels, &pixelTex, &gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings);
 	return 0;
 }

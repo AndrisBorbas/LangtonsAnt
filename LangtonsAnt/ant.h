@@ -8,6 +8,7 @@ typedef struct Ant {
 	int x, y, heading, state, lasttile, currenttile, turn[18];
 }Ant;
 
+//The heading of the ant
 enum AntHeading
 {
 	UP = 0,

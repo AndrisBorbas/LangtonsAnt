@@ -44,8 +44,13 @@ bool initTexture(const SDL_Renderer** gRenderer, SDL_Texture** tTexture, SDL_Rec
 
 bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 {
-	if (*pixels)free(*pixels);
-	if (*pixelTex)free(*pixelTex);
+	//Free if they are already allocated
+	if (*pixels != NULL)free(*pixels);
+	if (*pixelTex != NULL)
+	{
+		free(*pixelTex[0]);
+		free(*pixelTex);
+	}
 
 	//Initialize pixel array
 	*pixels = malloc(SCREEN.w * SCREEN.h * sizeof(**pixels));
