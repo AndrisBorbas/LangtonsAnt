@@ -1,6 +1,6 @@
 ﻿#include "SDLHandler.h"
 
-bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN)
+bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect SCREEN)
 {
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -36,13 +36,13 @@ bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixe
 	return true;
 }
 
-bool initTexture(const SDL_Renderer** gRenderer, SDL_Texture** tTexture, SDL_Rect const SCREEN)
+void initTexture(SDL_Renderer** gRenderer, SDL_Texture** tTexture, SDL_Rect SCREEN)
 {
 	//Initialize screen texture
 	*tTexture = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN.w, SCREEN.h);
 }
 
-bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
+void initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect SCREEN)
 {
 	//Free if they are already allocated
 	if (*pixels != NULL)free(*pixels);
@@ -56,15 +56,14 @@ bool initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN)
 	*pixels = malloc(SCREEN.w * SCREEN.h * sizeof(**pixels));
 
 	//Initialize 2D pixel texture array
-	*pixelTex = (Uint32 ***)malloc(sizeof(Uint32 *) * SCREEN.w);
-	*pixelTex[0] = (Uint32 **)malloc(sizeof(Uint32) * SCREEN.h * SCREEN.w);
+	*pixelTex = malloc(sizeof(Uint32 *) * SCREEN.w);
+	*pixelTex[0] = malloc(sizeof(Uint32) * SCREEN.h * SCREEN.w);
 	for (int i = 0; i < SCREEN.w; i++)
 		(*pixelTex)[i] = (**pixelTex + SCREEN.h * i);
 
 	//Override all pixels
 	memset32(*pixels, BLACK, SCREEN.w * SCREEN.h * sizeof(Uint32));
-	memset32(**pixelTex, BLACK, SCREEN.w * SCREEN.h * sizeof(Uint32));
-	return true;
+	memset32(*pixelTex[0], BLACK, SCREEN.w * SCREEN.h * sizeof(Uint32));
 }
 
 void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* tPixelTexture, SDL_Texture* tMainMenu, SDL_Texture* tStrings)

@@ -31,21 +31,21 @@ int main(int argc, char ** argv)
 	////////////////
 
 	//Window parameter container
-	volatile SDL_Rect SCREEN;
+	SDL_Rect SCREEN;
 	//Width of the window
 	SCREEN.w = 960;
 	//Height of the window
 	SCREEN.h = 960;
 	//Number of pixels per grid square (has to be at least 3 or the ant wont be visible, but it will still work)
-	volatile int SCALE = 4;
+	int SCALE = 4;
 	//Number of pixels between grid squares
-	volatile int SPACING = 1;
+	int SPACING = 1;
 	//Number of pixels the ant is smaller than the grid (has to be at least 1, can't be more than SCALE)
-	int const ANTMARGIN = 1;
+	int ANTMARGIN = 1;
 	//The tickrate of the simulation in ms
-	volatile int MSTICK = 16;
+	int MSTICK = 16;
 	//Instructionset for the ant
-	volatile char instructionset[19] = "RL";
+	char instructionset[19] = "RL";
 
 	//Base instructions for the settings to cycle through
 	char instructions[9][19];
@@ -775,6 +775,6 @@ startup:
 
 	end:
 		//Free resources and close SDL
-		close(&pixels, &pixelTex, &gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings);
+		close(&pixels, &pixelTex, gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings);
 		return 0;
 	}

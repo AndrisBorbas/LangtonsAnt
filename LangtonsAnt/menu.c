@@ -1,7 +1,7 @@
 ﻿#include "menu.h"
 
-void drawMenu(TTF_Font** StartFont, TTF_Font** MenuFont, TTF_Font** InstructFont, TTF_Font** HelpFont, SDL_Texture** tStrings, SDL_Rect** lStrings,
-	SDL_Window** gWindow, const SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN, SDL_Rect HelpButton1, char help[5][14],
+void drawMenu(TTF_Font** StartFont, TTF_Font** MenuFont, TTF_Font** InstructFont, TTF_Font** HelpFont, SDL_Texture** tStrings, SDL_Rect* lStrings,
+	SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect SCREEN, SDL_Rect HelpButton1, char help[5][14],
 	SDL_Rect StartButton, SDL_Rect StartButtonStroke, SDL_Rect ResButton, SDL_Rect ResUp, SDL_Rect ResDown, SDL_Rect ScaleButton, int SCALE, SDL_Rect InstructButton, char* instructionset)
 {
 	SDL_RenderClear(*gRenderer);
@@ -53,7 +53,7 @@ void drawMenu(TTF_Font** StartFont, TTF_Font** MenuFont, TTF_Font** InstructFont
 	SDL_RenderPresent(*gRenderer);
 }
 
-void refreshMenu(SDL_Window** gWindow, const SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect const SCREEN, int Strokesize,
+void refreshMenu(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect SCREEN, int Strokesize,
 	SDL_Rect* StartButton, SDL_Rect* StartButtonStroke, SDL_Rect* ResButton, SDL_Rect* ResUp, SDL_Rect* ResDown, SDL_Rect* ScaleButton, SDL_Rect* InstructButton)
 {
 	//Resize window
@@ -62,11 +62,11 @@ void refreshMenu(SDL_Window** gWindow, const SDL_Renderer** gRenderer, SDL_Textu
 	setButtons(SCREEN, Strokesize, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, InstructButton);
 }
 
-void setButtons(SDL_Rect const SCREEN, int Strokesize, SDL_Rect* StartButton, SDL_Rect* StartButtonStroke,
+void setButtons(SDL_Rect SCREEN, int Strokesize, SDL_Rect* StartButton, SDL_Rect* StartButtonStroke,
 	SDL_Rect* ResButton, SDL_Rect* ResUp, SDL_Rect* ResDown, SDL_Rect* ScaleButton, SDL_Rect* InstructButton)
 {
 	setStartButton(SCREEN, StartButton);
-	setStartButtonStroke(SCREEN, Strokesize, StartButton, StartButtonStroke);
+	setStartButtonStroke(Strokesize, StartButton, StartButtonStroke);
 	setResButton(SCREEN, ResButton);
 	setResUp(SCREEN, ResButton, ResUp);
 	setResDown(SCREEN, ResButton, ResDown);
@@ -79,7 +79,7 @@ void setStartButton(SDL_Rect const SCREEN, SDL_Rect* StartButton)
 	StartButton->x = SCREEN.w / 2 - StartButton->w / 2;
 }
 
-void setStartButtonStroke(SDL_Rect const SCREEN, int Strokesize, SDL_Rect* StartButton, SDL_Rect* StartButtonStroke)
+void setStartButtonStroke(int Strokesize, SDL_Rect* StartButton, SDL_Rect* StartButtonStroke)
 {
 	StartButtonStroke->w = StartButton->w + (Strokesize * 2);
 	StartButtonStroke->h = StartButton->h + (Strokesize * 2);
@@ -87,7 +87,7 @@ void setStartButtonStroke(SDL_Rect const SCREEN, int Strokesize, SDL_Rect* Start
 	StartButtonStroke->y = StartButton->y - Strokesize;
 }
 
-void setResButton(SDL_Rect const SCREEN, SDL_Rect* ResButton)
+void setResButton(SDL_Rect SCREEN, SDL_Rect* ResButton)
 {
 	if (SCREEN.w >= 1000 || SCREEN.h >= 1000)ResButton->w = 160;
 	else ResButton->w = 144;
@@ -95,25 +95,25 @@ void setResButton(SDL_Rect const SCREEN, SDL_Rect* ResButton)
 	ResButton->y = SCREEN.h - ResButton->h - 25;
 }
 
-void setResUp(SDL_Rect const SCREEN, SDL_Rect* ResButton, SDL_Rect* ResUp)
+void setResUp(SDL_Rect SCREEN, SDL_Rect* ResButton, SDL_Rect* ResUp)
 {
 	ResUp->x = ResButton->x + ResButton->w + 8;
 	ResUp->y = ResButton->y + 3;
 }
 
-void setResDown(SDL_Rect const SCREEN, SDL_Rect* ResButton, SDL_Rect* ResDown)
+void setResDown(SDL_Rect SCREEN, SDL_Rect* ResButton, SDL_Rect* ResDown)
 {
 	ResDown->x = ResButton->x - ResDown->w - 8;
 	ResDown->y = ResButton->y + 3;
 }
 
-void setInstructButton(SDL_Rect const SCREEN, SDL_Rect* InstructButton)
+void setInstructButton(SDL_Rect  SCREEN, SDL_Rect* InstructButton)
 {
 	InstructButton->x = SCREEN.w / 2 - SCREEN.w / 4 - InstructButton->w / 2;
 	InstructButton->y = SCREEN.h - InstructButton->h - 25;
 }
 
-void setScaleButton(SDL_Rect const SCREEN, SDL_Rect* ScaleButton) 
+void setScaleButton(SDL_Rect SCREEN, SDL_Rect* ScaleButton) 
 {
 	ScaleButton->x = SCREEN.w - ScaleButton->w - 25;
 	ScaleButton->y = SCREEN.h / 2 - ScaleButton->h / 2;

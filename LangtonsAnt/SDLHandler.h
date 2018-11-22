@@ -1,18 +1,19 @@
 ﻿#pragma once
 
 #include "includes.h"
-
-//Frees media and shuts down SDL
-void close(Uint32**, Uint32***, SDL_Window*, SDL_Renderer*, SDL_Texture*, SDL_Texture*, SDL_Texture*);
+#include "Utilities.h"
 
 //Starts up SDL and creates window
-bool initSDL(SDL_Window**, SDL_Renderer**, SDL_Texture**, SDL_Texture**, SDL_Rect const );
+bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixelTexture, SDL_Texture** tMainMenu, SDL_Rect SCREEN);
 
 //Initialize a texture
-bool initTexture(SDL_Renderer**, SDL_Texture**, SDL_Rect const);
+void initTexture(SDL_Renderer** gRenderer, SDL_Texture** tTexture, SDL_Rect SCREEN);
 
 //Initializes the pixel arrays
-bool initPixels(Uint32**, Uint32***, SDL_Rect const);
+void initPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect SCREEN);
+
+//Frees media and shuts down SDL
+void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Renderer* gRenderer, SDL_Texture* tPixelTexture, SDL_Texture* tMainMenu, SDL_Texture* tStrings);
 
 //Save current run to BMP
-void save_texture(SDL_Renderer*, SDL_Texture*, const char*);
+void save_texture(SDL_Renderer* gRenderer, SDL_Texture* tTexture, const char *filename);

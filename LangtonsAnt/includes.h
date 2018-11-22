@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 //#define Debug
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -11,6 +12,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
-#include <wchar.h>
+#include <sys/stat.h>
 
 #include "colors.h"

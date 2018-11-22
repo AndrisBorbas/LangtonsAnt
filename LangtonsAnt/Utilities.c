@@ -30,7 +30,7 @@ Uint32 ftick(Uint32 ms, void *param)
 	return ms;
 }
 
-void convertPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect const SCREEN) 
+void convertPixels(Uint32** pixels, Uint32*** pixelTex, SDL_Rect SCREEN) 
 {
 	for (int i = 0; i < SCREEN.w; i++)
 	{
