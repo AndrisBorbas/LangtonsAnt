@@ -10,7 +10,7 @@ void drawMenu(TTF_Font** StartFont, TTF_Font** MenuFont, TTF_Font** InstructFont
 	SDL_RenderPresent(*gRenderer);
 
 	//Draw help texts
-	for (int j = 0; j < 5; j++)
+	for (int j = 0; j < 6; j++)
 	{
 		roundedBoxColor(*gRenderer, HelpButton1.x, HelpButton1.y, HelpButton1.x + HelpButton1.w, HelpButton1.y + HelpButton1.h, 6, altGRAYALPHA);
 		drawTextintoButton(*gRenderer, *HelpFont, tStrings, lStrings, HelpButton1, help[j], TextDARKORANGE);

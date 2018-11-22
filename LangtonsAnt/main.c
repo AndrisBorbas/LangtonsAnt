@@ -127,7 +127,7 @@ int main(int argc, char ** argv)
 	HelpButton1.w = 150;
 	HelpButton1.h = 36;
 	HelpButton1.x = 25;
-	HelpButton1.y = SCREEN.h / 4 - 9;
+	HelpButton1.y = SCREEN.h / 4 - 24;
 
 
 	//Handle normal quit
@@ -229,7 +229,10 @@ int main(int argc, char ** argv)
 	int num = 0;
 
 	//help texts
-	char help[5][14] = { "space: pause","p: menu", "g: jump 100", "h: jump 1000", "j: jump 10000" };
+	char help[6][14] = { "space: pause", "p: menu", "f: step 1", "g: jump 100", "h: jump 1000", "j: jump 10000" };
+
+	//The ant
+	Ant ant;
 
 	//Start of the main loop
 startup:
@@ -484,8 +487,13 @@ startup:
 		}
 	}
 
-	//The ant
-	Ant ant = { SCREEN.w / 2 , SCREEN.h / 2 , UP, 0, 0, BLACK };
+	//Setting the ants start values
+	ant.x = SCREEN.w / 2;
+	ant.y = SCREEN.h / 2;
+	ant.heading = UP;
+	ant.state = 0;
+	ant.lasttile = 0;
+	ant.currenttile = BLACK;
 	for (int i = 0; i < 19; i++)
 	{
 		if (instructionset[i] == '\0')break;
@@ -520,6 +528,7 @@ startup:
 
 	SDL_RenderClear(gRenderer);
 
+	//Output text file
 	FILE *fAntOut = NULL;
 
 	if (!quit)
@@ -576,6 +585,18 @@ startup:
 
 				//Return to menu
 				goto startup;
+			case SDLK_f:
+			j1:
+				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
+				{
+					SDL_Log("Error while trying to move ant: %s", SDL_GetError());
+					ERROR = true;
+					quit = true;
+					break;
+				}
+				convertPixels(&pixels, &pixelTex, SCREEN);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
+				break;
 			case SDLK_g:
 			j100:
 				for (int i = 0; i < 104; i++)
@@ -674,6 +695,9 @@ startup:
 
 						//Return to menu start on hitting p
 						goto startup;
+					case SDLK_f:
+						goto j1;
+						break;
 					case SDLK_g:
 						goto j100;
 						break;
@@ -696,9 +720,38 @@ startup:
 				SDL_RenderPresent(gRenderer);
 
 				SDL_WaitEvent(&event);
-				if (event.type == SDL_QUIT)
+				switch (event.type)
 				{
+				case SDL_QUIT:
 					equit = true;
+					paused = false;
+					break;
+				case SDL_KEYDOWN:
+					switch (event.key.keysym.sym)
+					{
+					case SDLK_ESCAPE:
+						Running = false;
+						paused = false;
+						equit = true;
+						break;
+					case SDLK_p:
+						paused = true;
+						Running = false;
+						ERROR = false;
+						quit = false;
+						start = false;
+
+						//Save on returning to menu
+						fprintf(fAntOut, "\nThis run was sponsored by ant gang.");
+						fclose(fAntOut);
+
+						char antouttexturename[100];
+						sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+						save_texture(gRenderer, tPixelTexture, antouttexturename);
+
+						//Return to menu start on hitting p
+						goto startup;
+					}
 				}
 			}
 		}
@@ -707,21 +760,21 @@ startup:
 			SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
 			SDL_RenderPresent(gRenderer);
 		}
+		}
+
+		fprintf(fAntOut, "This run was sponsored by ant gang.");
+		SDL_Log("Saved instructions as TXT to \"%s\"\n", antoutfilename);
+		fclose(fAntOut);
+
+		if (!paused)
+		{
+			char antouttexturename[100];
+			sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+			save_texture(gRenderer, tPixelTexture, antouttexturename);
+		}
+
+	end:
+		//Free resources and close SDL
+		close(&pixels, &pixelTex, &gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings);
+		return 0;
 	}
-
-	fprintf(fAntOut, "This run was sponsored by ant gang.");
-	SDL_Log("Saved instructions as TXT to \"%s\"\n", antoutfilename);
-	fclose(fAntOut);
-
-	if (!paused)
-	{
-		char antouttexturename[100];
-		sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
-		save_texture(gRenderer, tPixelTexture, antouttexturename);
-	}
-
-end:
-	//Free resources and close SDL
-	close(&pixels, &pixelTex, &gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings);
-	return 0;
-}
