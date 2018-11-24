@@ -28,22 +28,21 @@ int main(int argc, char ** argv)
 	//Default values
 	////////////////
 
-	//Window parameter container
-	SDL_Rect SCREEN;
+	Settings settings;
 	//Width of the window
-	SCREEN.w = 960;
+	settings.SCREEN.w = 960;
 	//Height of the window
-	SCREEN.h = 960;
+	settings.SCREEN.h = 960;
 	//Number of pixels per grid square (has to be at least 3 or the ant wont be visible, but it will still work)
-	int SCALE = 4;
+	settings.SCALE = 4;
 	//Number of pixels between grid squares
-	int SPACING = 1;
+	settings.SPACING = 1;
 	//Number of pixels the ant is smaller than the grid (has to be at least 1, can't be more than SCALE)
-	int ANTMARGIN = 1;
+	settings.ANTMARGIN = 1;
 	//The tickrate of the simulation in ms
-	int MSTICK = 16;
+	settings.MSTICK = 16;
 	//Instructionset for the ant
-	char instructionset[19] = "RL";
+	strcpy(settings.instructionset, "RL");
 
 	//Base instructions for the settings to cycle through
 	char instructions[9][19];
@@ -61,9 +60,9 @@ int main(int argc, char ** argv)
 	int lepes = 0;
 
 	//The number of instructions in the instructionset
-	int instructnum = strlen(instructionset);
+	int instructnum = strlen(settings.instructionset);
 
-	loadConfig(fDefConf, &SCREEN, &SCALE, &SPACING, &ANTMARGIN, &MSTICK, &instructionset, &instructnum);
+	loadConfig(fDefConf, &settings, &instructnum);
 
 	/////////
 	//Buttons
@@ -77,7 +76,7 @@ int main(int argc, char ** argv)
 	int Strokesize = 2;
 
 	SDL_Rect ResButton;
-	if (SCREEN.w >= 1000)ResButton.w = 160;
+	if (settings.SCREEN.w >= 1000)ResButton.w = 160;
 	else ResButton.w = 144;
 	ResButton.h = 40;
 
@@ -101,7 +100,7 @@ int main(int argc, char ** argv)
 	HelpButton1.w = 150;
 	HelpButton1.h = 36;
 	HelpButton1.x = 25;
-	HelpButton1.y = SCREEN.h / 4 - 24;
+	HelpButton1.y = settings.SCREEN.h / 4 - 24;
 
 
 	//Handle normal quit
@@ -139,7 +138,7 @@ int main(int argc, char ** argv)
 	SDL_Point mouse = { 0,0 };
 
 	//Start up SDL and create window
-	if (!initSDL(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN))
+	if (!initSDL(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, settings.SCREEN))
 	{
 		SDL_Log("Failed to initialize: %s", SDL_GetError());
 		exit(1);
@@ -192,7 +191,7 @@ int main(int argc, char ** argv)
 	}
 
 	//Temporarily store values to load on hitting apply
-	SDL_Rect tempSCREEN = SCREEN;
+	SDL_Rect tempSCREEN = settings.SCREEN;
 
 	//The events that handle keypresses and timers
 	SDL_Event event;
@@ -215,11 +214,11 @@ startup:
 	num++;
 
 	//Set the position of the buttons
-	refreshMenu(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, Strokesize, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &ScaleButton, &InstructButton);
+	refreshMenu(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, settings.SCREEN, Strokesize, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &ScaleButton, &InstructButton);
 
 	//Draw main menu
 	drawMenu(&StartFont, &MenuFont, &InstructFont, &HelpFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
-		SCREEN, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, SCALE, InstructButton, instructionset);
+		settings, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, InstructButton);
 
 	//Handle events in the menu
 	while (!quit && !start)
@@ -260,7 +259,7 @@ startup:
 				{
 					roundedBoxColor(gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 6, altDARKGRAY);
 					char buff[sizeof(int) * 19 + 2];
-					sprintf(buff, "%dx%d", SCREEN.w, SCREEN.h);
+					sprintf(buff, "%dx%d", settings.SCREEN.w, settings.SCREEN.h);
 					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ResButton, buff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
@@ -284,7 +283,7 @@ startup:
 				{
 					roundedBoxColor(gRenderer, ScaleButton.x, ScaleButton.y, ScaleButton.x + ScaleButton.w, ScaleButton.y + ScaleButton.h, 6, altDARKGRAY);
 					char sbuff[sizeof(int) * 1 + 8];
-					sprintf(sbuff, "Scale: %d", SCALE);
+					sprintf(sbuff, "Scale: %d", settings.SCALE);
 					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ScaleButton, sbuff, TextDARKORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
@@ -293,7 +292,7 @@ startup:
 				if (SDL_PointInRect(&mouse, &InstructButton))
 				{
 					roundedBoxColor(gRenderer, InstructButton.x, InstructButton.y, InstructButton.x + InstructButton.w, InstructButton.y + InstructButton.h, 6, altDARKGRAY);
-					drawTextintoButton(gRenderer, InstructFont, &tStrings, &lStrings, InstructButton, instructionset, TextORANGE);
+					drawTextintoButton(gRenderer, InstructFont, &tStrings, &lStrings, InstructButton, settings.instructionset, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
 				}
@@ -313,10 +312,10 @@ startup:
 				//Apply resolution change on resolution display button
 				if (SDL_PointInRect(&mouse, &ResButton))
 				{
-					SCREEN = tempSCREEN;
-					refreshMenu(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, SCREEN, Strokesize, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &ScaleButton, &InstructButton);
+					settings.SCREEN = tempSCREEN;
+					refreshMenu(&gWindow, &gRenderer, &tPixelTexture, &tMainMenu, settings.SCREEN, Strokesize, &StartButton, &StartButtonStroke, &ResButton, &ResUp, &ResDown, &ScaleButton, &InstructButton);
 					drawMenu(&StartFont, &MenuFont, &InstructFont, &HelpFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
-						SCREEN, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, SCALE, InstructButton, instructionset);
+						settings, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, InstructButton);
 				}
 
 				//Change resolution when clicking the arrow to the right
@@ -419,10 +418,10 @@ startup:
 				//Change instructionset when clicking that button
 				if (SDL_PointInRect(&mouse, &InstructButton))
 				{
-					strcpy(instructionset, instructions[iter]);
-					instructnum = strlen(instructionset);
+					strcpy(settings.instructionset, instructions[iter]);
+					instructnum = strlen(settings.instructionset);
 					roundedBoxColor(gRenderer, InstructButton.x, InstructButton.y, InstructButton.x + InstructButton.w, InstructButton.y + InstructButton.h, 6, altGRAY);
-					drawTextintoButton(gRenderer, InstructFont, &tStrings, &lStrings, InstructButton, instructionset, TextORANGE);
+					drawTextintoButton(gRenderer, InstructFont, &tStrings, &lStrings, InstructButton, settings.instructionset, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
 					if (iter >= 8)iter = 0;
@@ -432,18 +431,18 @@ startup:
 				//Change the size of the pixels when clicking on that button
 				if (SDL_PointInRect(&mouse, &ScaleButton))
 				{
-					if (SCALE == 4) {
-						SCALE = 1;
-						SPACING = 0;
+					if (settings.SCALE == 4) {
+						settings.SCALE = 1;
+						settings.SPACING = 0;
 					}
 					else
 					{
-						SCALE = 4;
-						SPACING = 1;
+						settings.SCALE = 4;
+						settings.SPACING = 1;
 					}
 					roundedBoxColor(gRenderer, ScaleButton.x, ScaleButton.y, ScaleButton.x + ScaleButton.w, ScaleButton.y + ScaleButton.h, 6, altGRAY);
 					char sbuff[sizeof(int) * 1 + 8];
-					sprintf(sbuff, "Scale: %d", SCALE);
+					sprintf(sbuff, "Scale: %d", settings.SCALE);
 					drawTextintoButton(gRenderer, MenuFont, &tStrings, &lStrings, ScaleButton, sbuff, TextORANGE);
 					SDL_RenderCopy(gRenderer, tStrings, NULL, &lStrings);
 					SDL_RenderPresent(gRenderer);
@@ -454,7 +453,7 @@ startup:
 					!SDL_PointInRect(&mouse, &ResButton) && !SDL_PointInRect(&mouse, &StartButton))
 				{
 					drawMenu(&StartFont, &MenuFont, &InstructFont, &HelpFont, &tStrings, &lStrings, &gWindow, &gRenderer, &tPixelTexture, &tMainMenu,
-						SCREEN, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, SCALE, InstructButton, instructionset);
+						settings, HelpButton1, help, StartButton, StartButtonStroke, ResButton, ResUp, ResDown, ScaleButton, InstructButton);
 				}
 			}
 			break;
@@ -462,44 +461,20 @@ startup:
 	}
 
 	//Setting the ants start values
-	ant.x = SCREEN.w / 2;
-	ant.y = SCREEN.h / 2;
+	ant.x = settings.SCREEN.w / 2;
+	ant.y = settings.SCREEN.h / 2;
 	ant.heading = UP;
-	ant.state = 0;
-	ant.lasttile = 0;
-	ant.currenttile = BLACK;
+	ant.lasttile = BLACK;
 	//Converting instructionset to actual turns
-	for (int i = 0; i < 19; i++)
-	{
-		if (instructionset[i] == '\0')break;
-		switch (instructionset[i])
-		{
-		case 'R':
-		case 'r':
-			ant.turn[i] = 90;
-			break;
-		case 'L':
-		case 'l':
-			ant.turn[i] = -90;
-			break;
-		case 'N':
-		case 'n':
-			ant.turn[i] = 0;
-			break;
-		case 'U':
-		case 'u':
-			ant.turn[i] = 180;
-			break;
-		}
-	}
+	convertToTurns(settings.instructionset, &ant);
 
 	//Initialize pixel texture
-	initTexture(&gRenderer, &tPixelTexture, SCREEN);
+	initTexture(&gRenderer, &tPixelTexture, settings.SCREEN);
 	//Initialize pixel arrays
-	initPixels(&pixels, &pixelTex, SCREEN);
+	initPixels(&pixels, &pixelTex, settings.SCREEN);
 
 	//Create base tickrate
-	SDL_TimerID tick = SDL_AddTimer(MSTICK, ftick, NULL);
+	SDL_TimerID tick = SDL_AddTimer(settings.MSTICK, ftick, NULL);
 
 	SDL_RenderClear(gRenderer);
 
@@ -519,10 +494,10 @@ startup:
 			SDL_Log("Could not open output file: %s", antoutfilename);
 			exit(32);
 		}
-		fprintf(fAntOut, "Dimensions: %dx%d, Scale: %d, Spacing: %d, Margin: %d, Instructionset: %s\n\n", SCREEN.w, SCREEN.h, SCALE, SPACING, ANTMARGIN, instructionset);
+		fprintf(fAntOut, "Dimensions: %dx%d, Scale: %d, Spacing: %d, Margin: %d, Instructionset: %s\n\n", settings.SCREEN.w, settings.SCREEN.h, settings.SCALE, settings.SPACING, settings.ANTMARGIN, settings.instructionset);
 	}
 
-	SDL_Log("Dimensions: %dx%d, Scale: %d, Spacing: %d, Margin: %d, Instructionset: %s\n\n", SCREEN.w, SCREEN.h, SCALE, SPACING, ANTMARGIN, instructionset);
+	SDL_Log("Dimensions: %dx%d, Scale: %d, Spacing: %d, Margin: %d, Instructionset: %s\n\n", settings.SCREEN.w, settings.SCREEN.h, settings.SCALE, settings.SPACING, settings.ANTMARGIN, settings.instructionset);
 
 	Running = true;
 
@@ -562,21 +537,21 @@ startup:
 				goto startup;
 			case SDLK_f:
 			j1:
-				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
+				if (!moveAnt(&pixelTex, &ant, &lepes, settings, instructnum, fAntOut))
 				{
 					SDL_Log("Error while trying to move ant: %s", SDL_GetError());
 					ERROR = true;
 					quit = true;
 					break;
 				}
-				convertPixels(&pixels, &pixelTex, SCREEN);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
+				convertPixels(&pixels, &pixelTex, settings.SCREEN);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, settings.SCREEN.w * sizeof(Uint32));
 				break;
 			case SDLK_g:
 			j100:
 				for (int i = 0; i < 104; i++)
 				{
-					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
+					if (!moveAnt(&pixelTex, &ant, &lepes, settings, instructnum, fAntOut))
 					{
 						SDL_Log("Error while trying to move ant: %s", SDL_GetError());
 						ERROR = true;
@@ -584,14 +559,14 @@ startup:
 						break;
 					}
 				}
-				convertPixels(&pixels, &pixelTex, SCREEN);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
+				convertPixels(&pixels, &pixelTex, settings.SCREEN);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, settings.SCREEN.w * sizeof(Uint32));
 				break;
 			case SDLK_h:
 			j1000:
 				for (int i = 0; i < 1040; i++)
 				{
-					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
+					if (!moveAnt(&pixelTex, &ant, &lepes, settings, instructnum, fAntOut))
 					{
 						SDL_Log("Error while trying to move ant: %s", SDL_GetError());
 						ERROR = true;
@@ -599,14 +574,14 @@ startup:
 						break;
 					}
 				}
-				convertPixels(&pixels, &pixelTex, SCREEN);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
+				convertPixels(&pixels, &pixelTex, settings.SCREEN);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, settings.SCREEN.w * sizeof(Uint32));
 				break;
 			case SDLK_j:
 			j10000:
 				for (int i = 0; i < 10400; i++)
 				{
-					if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
+					if (!moveAnt(&pixelTex, &ant, &lepes, settings, instructnum, fAntOut))
 					{
 						SDL_Log("Error while trying to move ant: %s", SDL_GetError());
 						ERROR = true;
@@ -614,24 +589,25 @@ startup:
 						break;
 					}
 				}
-				convertPixels(&pixels, &pixelTex, SCREEN);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
+				convertPixels(&pixels, &pixelTex, settings.SCREEN);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, settings.SCREEN.w * sizeof(Uint32));
 				break;
 			case SDLK_SPACE:
 				Running = true;
 				break;
 			}
+		//Base tickrate
 		case SDL_USEREVENT:
 			while (Running && !quit)
 			{
-				if (!moveAnt(&pixelTex, &ant, &lepes, SCREEN, SCALE, SPACING, ANTMARGIN, instructnum, instructionset, fAntOut))
+				if (!moveAnt(&pixelTex, &ant, &lepes, settings, instructnum, fAntOut))
 				{
 					SDL_Log("Error while trying to move ant: %s", SDL_GetError());
 					ERROR = true;
 					quit = true;
 				}
-				convertPixels(&pixels, &pixelTex, SCREEN);
-				SDL_UpdateTexture(tPixelTexture, NULL, pixels, SCREEN.w * sizeof(Uint32));
+				convertPixels(&pixels, &pixelTex, settings.SCREEN);
+				SDL_UpdateTexture(tPixelTexture, NULL, pixels, settings.SCREEN.w * sizeof(Uint32));
 				if (!ERROR)
 				{
 					SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);

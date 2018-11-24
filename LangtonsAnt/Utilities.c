@@ -82,7 +82,7 @@ void loadcharFromConfig(FILE* file, char* buffer, char* variable, char* variable
 	}
 }
 
-void loadConfig(FILE* file, SDL_Rect* SCREEN, int* SCALE, int* SPACING, int* ANTMARGIN, int* MSTICK, char* instructionset, int* instructnum) 
+void loadConfig(FILE* file, Settings* settings, int* instructnum) 
 {
 	//Buffer for reading from file
 	char buffer[52] = "";
@@ -97,18 +97,18 @@ void loadConfig(FILE* file, SDL_Rect* SCREEN, int* SCALE, int* SPACING, int* ANT
 
 			if (buffer[0] == '#')
 			{
-				loadintFromConfig(file, buffer, &SCREEN->w, "SCREEN_WIDTH");
-				loadintFromConfig(file, buffer, &SCREEN->h, "SCREEN_HEIGHT");
-				loadintFromConfig(file, buffer, SCALE, "SCALE");
-				loadintFromConfig(file, buffer, SPACING, "SPACING");
-				loadintFromConfig(file, buffer, ANTMARGIN, "ANTMARGIN");
-				loadintFromConfig(file, buffer, MSTICK, "MSTICK");
-				loadcharFromConfig(file, buffer, instructionset, "INSTRUCTIONSET");
+				loadintFromConfig(file, buffer, &settings->SCREEN.w, "SCREEN_WIDTH");
+				loadintFromConfig(file, buffer, &settings->SCREEN.h, "SCREEN_HEIGHT");
+				loadintFromConfig(file, buffer, &settings->SCALE, "SCALE");
+				loadintFromConfig(file, buffer, &settings->SPACING, "SPACING");
+				loadintFromConfig(file, buffer, &settings->ANTMARGIN, "ANTMARGIN");
+				loadintFromConfig(file, buffer, &settings->MSTICK, "MSTICK");
+				loadcharFromConfig(file, buffer, &settings->instructionset, "INSTRUCTIONSET");
 			}
 		}
 	}
 	fclose(file);
 
 	//Number of instructions
-	*instructnum = strlen(instructionset);
+	*instructnum = strlen(settings->instructionset);
 }

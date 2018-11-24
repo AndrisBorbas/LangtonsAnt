@@ -24,4 +24,4 @@ void loadintFromConfig(FILE* wDefConf, char* buffer, int* variable, char* variab
 void loadcharFromConfig(FILE* wDefConf, char* buffer, char* variable, char* variableName);
 
 //Load everything from the config file
-void loadConfig(FILE* file, SDL_Rect* SCREEN, int* SCALE, int* SPACING, int* ANTMARGIN, int* MSTICK, char* instructionset, int* instructnum);
+void loadConfig(FILE* file, Settings* settings, int* instructnum);

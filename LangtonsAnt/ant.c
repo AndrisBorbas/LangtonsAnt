@@ -1,6 +1,6 @@
 ﻿#include "ant.h"
 
-bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, SDL_Rect SCREEN, int SCALE, int SPACING, int ANTMARGIN, int instructnum, char* instructionset, FILE* fAntOut)
+bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, Settings settings, int instructnum, FILE* fAntOut)
 {
 	(*lepes)++;
 
@@ -12,17 +12,17 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, SDL_Rect SCREEN, int SCAL
 	fprintf(fAntOut, "%d. lepes: ", *lepes);
 
 	//Rotate ant based on the tile under the ant
-	if (!antgorithm(pixelTex, ant, SCREEN, SCALE, SPACING, ANTMARGIN, fAntOut))return false;
+	if (!antgorithm(pixelTex, ant, settings, fAntOut))return false;
 
 	//Wrap number of colors based on number of instructions in the instructionset
 	if (ant->lasttile == instructnum-1)ant->lasttile = 18;
 
 	//color last location
-	for (int i = (ant->x - SCALE); i < (ant->x + SCALE - SPACING); i++)
+	for (int i = (ant->x - settings.SCALE); i < (ant->x + settings.SCALE - settings.SPACING); i++)
 	{
-		for (int j = (ant->y - SCALE); j < (ant->y + SCALE - SPACING); j++)
+		for (int j = (ant->y - settings.SCALE); j < (ant->y + settings.SCALE - settings.SPACING); j++)
 		{
-			if (i<0 || i>=SCREEN.w || j<0 || j>=SCREEN.h)
+			if (i<0 || i>= settings.SCREEN.w || j<0 || j>= settings.SCREEN.h)
 			{
 				SDL_Log("ERROR: last location out of bounds at x=%d, y=%d.\n", i, j);
 				return false;
@@ -97,27 +97,27 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, SDL_Rect SCREEN, int SCAL
 	switch (ant->heading)
 	{
 	case UP:
-		ant->y = ant->y - SCALE * 2;
+		ant->y = ant->y - settings.SCALE * 2;
 		break;
 	case DOWN:
-		ant->y = ant->y + SCALE * 2;
+		ant->y = ant->y + settings.SCALE * 2;
 		break;
 	case RIGHT:
-		ant->x = ant->x + SCALE * 2;
+		ant->x = ant->x + settings.SCALE * 2;
 		break;
 	case LEFT:
-		ant->x = ant->x - SCALE * 2;
+		ant->x = ant->x - settings.SCALE * 2;
 		break;
 	default:
 		break;
 	}
 
-	//Color the tile red where the ant is
-	for (int i = (ant->x - SCALE + ANTMARGIN); i < (ant->x + SCALE - SPACING - ANTMARGIN); i++)
+	//Color the tile white where the ant is
+	for (int i = (ant->x - settings.SCALE + settings.ANTMARGIN); i < (ant->x + settings.SCALE - settings.SPACING - settings.ANTMARGIN); i++)
 	{
-		for (int j = (ant->y - SCALE + ANTMARGIN); j < (ant->y + SCALE - SPACING - ANTMARGIN); j++)
+		for (int j = (ant->y - settings.SCALE + settings.ANTMARGIN); j < (ant->y + settings.SCALE - settings.SPACING - settings.ANTMARGIN); j++)
 		{
-			if (i<0 || i>=SCREEN.w || j<0 || j>=SCREEN.h)
+			if (i<0 || i>= settings.SCREEN.w || j<0 || j>= settings.SCREEN.h)
 			{
 				SDL_Log("ERROR: ant out of bounds at x=%d, y=%d.\n", i, j);
 				return false;
@@ -130,14 +130,13 @@ bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, SDL_Rect SCREEN, int SCAL
 
 bool turnAnt(Ant* ant, int tile, FILE* fAntOut)
 {
+	ant->lasttile = tile;
+	ant->heading = ant->heading + ant->turn[ant->lasttile];
 	//Wrap ant heading to not over or underflow 360 or 0 degrees
-	ant->currenttile = tile;
-	ant->heading = ant->heading + ant->turn[ant->currenttile];
 	if (ant->heading > 270) ant->heading = ant->heading - 360;
 	if (ant->heading < 0) ant->heading = ant->heading + 360;
-	ant->lasttile = tile;
 #ifdef Debug
-	switch (ant->turn[ant->currenttile]) {
+	switch (ant->turn[ant->lasttile]) {
 	case 90:
 		printf("jobb\n");
 		break;
@@ -154,7 +153,7 @@ bool turnAnt(Ant* ant, int tile, FILE* fAntOut)
 #endif
 	
 	//Print the current steps executed instruction
-	switch (ant->turn[ant->currenttile]) {
+	switch (ant->turn[ant->lasttile]) {
 	case 90:
 		fprintf(fAntOut, "jobb\n");
 		break;
@@ -171,12 +170,12 @@ bool turnAnt(Ant* ant, int tile, FILE* fAntOut)
 	return true;
 }
 
-bool antgorithm(Uint32*** pixelTex, Ant* ant, SDL_Rect SCREEN, int SCALE, int SPACING, int ANTMARGIN, FILE* fAntOut)
+bool antgorithm(Uint32*** pixelTex, Ant* ant, Settings settings, FILE* fAntOut)
 {
-	int xpos = (ant->x - SCALE - SPACING + ANTMARGIN);
-	int ypos = (ant->y - SCALE - SPACING + ANTMARGIN);
+	int xpos = (ant->x - settings.SCALE - settings.SPACING + settings.ANTMARGIN);
+	int ypos = (ant->y - settings.SCALE - settings.SPACING + settings.ANTMARGIN);
 
-	if (xpos < 0 || xpos > SCREEN.w || ypos < 0 || ypos > SCREEN.h)
+	if (xpos < 0 || xpos > settings.SCREEN.w || ypos < 0 || ypos > settings.SCREEN.h)
 	{
 		SDL_Log("Error: antgorithm out of bounds at x=%d, y=%d.\nSDL Error: %s", xpos, ypos, SDL_GetError());
 		return false;
@@ -228,4 +227,31 @@ bool antgorithm(Uint32*** pixelTex, Ant* ant, SDL_Rect SCREEN, int SCALE, int SP
 	}
 	SDL_Log("Error: antgorithm couldn't find matching color.\nSDL Error: %s", SDL_GetError());
 	return false;
+}
+
+void convertToTurns(char* instructionset, Ant* ant)
+{
+	for (int i = 0; i < 19; i++)
+	{
+		if (instructionset[i] == '\0')break;
+		switch (instructionset[i])
+		{
+		case 'R':
+		case 'r':
+			ant->turn[i] = 90;
+			break;
+		case 'L':
+		case 'l':
+			ant->turn[i] = -90;
+			break;
+		case 'N':
+		case 'n':
+			ant->turn[i] = 0;
+			break;
+		case 'U':
+		case 'u':
+			ant->turn[i] = 180;
+			break;
+		}
+	}
 }
