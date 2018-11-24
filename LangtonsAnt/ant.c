@@ -1,6 +1,6 @@
 ﻿#include "ant.h"
 
-bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, SDL_Rect const SCREEN, int const SCALE, int const SPACING, int const ANTMARGIN, int instructnum, char* instructionset, FILE* fAntOut)
+bool moveAnt(Uint32*** pixelTex, Ant* ant, int* lepes, SDL_Rect SCREEN, int SCALE, int SPACING, int ANTMARGIN, int instructnum, char* instructionset, FILE* fAntOut)
 {
 	(*lepes)++;
 
@@ -171,7 +171,7 @@ bool turnAnt(Ant* ant, int tile, FILE* fAntOut)
 	return true;
 }
 
-bool antgorithm(Uint32*** pixelTex, Ant* ant, SDL_Rect const SCREEN, int const SCALE, int const SPACING, int ANTMARGIN, FILE* fAntOut)
+bool antgorithm(Uint32*** pixelTex, Ant* ant, SDL_Rect SCREEN, int SCALE, int SPACING, int ANTMARGIN, FILE* fAntOut)
 {
 	int xpos = (ant->x - SCALE - SPACING + ANTMARGIN);
 	int ypos = (ant->y - SCALE - SPACING + ANTMARGIN);

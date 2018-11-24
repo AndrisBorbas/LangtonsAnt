@@ -52,14 +52,14 @@ void drawTextintoButton(SDL_Renderer* gRenderer, TTF_Font* font, SDL_Texture** t
 	SDL_FreeSurface(sStrings);
 }
 
-void loadintFromConfig(FILE* wDefConf, char* buffer, int* variable, char* variableName) 
+void loadintFromConfig(FILE* file, char* buffer, int* variable, char* variableName) 
 {
 	char ctemp[52] = "#";
 	strcat(ctemp, variableName);
 	int temp=0;
 	if (strcmp(buffer, ctemp) == 0)
 	{
-		fscanf(wDefConf, "%s%d", &buffer, &temp);
+		fscanf(file, "%s%d", &buffer, &temp);
 #ifdef Debug
 		printf("%d\n", temp);
 #endif
@@ -67,17 +67,48 @@ void loadintFromConfig(FILE* wDefConf, char* buffer, int* variable, char* variab
 	}
 }
 
-void loadcharFromConfig(FILE* wDefConf, char* buffer, char* variable, char* variableName)
+void loadcharFromConfig(FILE* file, char* buffer, char* variable, char* variableName)
 {
 	char ctemp[52] = "#";
 	strcat(ctemp, variableName);
 	char temp[52] = "";
 	if (strcmp(buffer, ctemp) == 0)
 	{
-		fscanf(wDefConf, "%s%s", &buffer, &temp);
+		fscanf(file, "%s%s", &buffer, &temp);
 #ifdef Debug
 		printf("%s\n", temp);
 #endif
 		strcpy(variable, temp);
 	}
+}
+
+void loadConfig(FILE* file, SDL_Rect* SCREEN, int* SCALE, int* SPACING, int* ANTMARGIN, int* MSTICK, char* instructionset, int* instructnum) 
+{
+	//Buffer for reading from file
+	char buffer[52] = "";
+
+	if (file != NULL)
+	{
+		//Load values from config file
+		while ((strstr(buffer, "endconfig;")) == NULL)
+		{
+			fscanf(file, "%s", &buffer);
+			if (buffer[0] == '/')continue;
+
+			if (buffer[0] == '#')
+			{
+				loadintFromConfig(file, buffer, &SCREEN->w, "SCREEN_WIDTH");
+				loadintFromConfig(file, buffer, &SCREEN->h, "SCREEN_HEIGHT");
+				loadintFromConfig(file, buffer, SCALE, "SCALE");
+				loadintFromConfig(file, buffer, SPACING, "SPACING");
+				loadintFromConfig(file, buffer, ANTMARGIN, "ANTMARGIN");
+				loadintFromConfig(file, buffer, MSTICK, "MSTICK");
+				loadcharFromConfig(file, buffer, instructionset, "INSTRUCTIONSET");
+			}
+		}
+	}
+	fclose(file);
+
+	//Number of instructions
+	*instructnum = strlen(instructionset);
 }

@@ -8,4 +8,4 @@
 #include "menu.h"
 
 //Main instance
-int main(int, char**);
+int main(int argc, char ** argv);

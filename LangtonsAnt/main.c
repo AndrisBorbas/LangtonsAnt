@@ -20,11 +20,9 @@ int main(int argc, char ** argv)
 	fDefConf = fopen(configfilename, "r+");
 	if (fDefConf == NULL)
 	{
-		SDL_Log("Could not open config file.");
+		SDL_Log("Could not open config file: %s", configfilename);
 	}
 
-	//Buffer for reading from file
-	char buffer[52] = "";
 
 	////////////////
 	//Default values
@@ -62,34 +60,10 @@ int main(int argc, char ** argv)
 	//Number of steps made by the ant;
 	int lepes = 0;
 
-	/////////
-	//Loading
-	/////////
-
-	if (fDefConf != NULL)
-	{
-		//Load values from config file
-		while ((strstr(buffer, "endconfig;")) == NULL)
-		{
-			fscanf(fDefConf, "%s", &buffer);
-			if (buffer[0] == '/')continue;
-
-			if (buffer[0] == '#')
-			{
-				loadintFromConfig(fDefConf, buffer, &SCREEN.w, "SCREEN_WIDTH");
-				loadintFromConfig(fDefConf, buffer, &SCREEN.h, "SCREEN_HEIGHT");
-				loadintFromConfig(fDefConf, buffer, &SCALE, "SCALE");
-				loadintFromConfig(fDefConf, buffer, &SPACING, "SPACING");
-				loadintFromConfig(fDefConf, buffer, &ANTMARGIN, "ANTMARGIN");
-				loadintFromConfig(fDefConf, buffer, &MSTICK, "MSTICK");
-				loadcharFromConfig(fDefConf, buffer, &instructionset, "INSTRUCTIONSET");
-			}
-		}
-	}
-	fclose(fDefConf);
-
-	//Number of instructions
+	//The number of instructions in the instructionset
 	int instructnum = strlen(instructionset);
+
+	loadConfig(fDefConf, &SCREEN, &SCALE, &SPACING, &ANTMARGIN, &MSTICK, &instructionset, &instructnum);
 
 	/////////
 	//Buttons
@@ -228,7 +202,7 @@ int main(int argc, char ** argv)
 	//Number of restarts to the menu
 	int num = 0;
 
-	//help texts
+	//Help texts
 	char help[6][14] = { "space: pause", "p: menu", "f: step 1", "g: jump 100", "h: jump 1000", "j: jump 10000" };
 
 	//The ant
@@ -494,6 +468,7 @@ startup:
 	ant.state = 0;
 	ant.lasttile = 0;
 	ant.currenttile = BLACK;
+	//Converting instructionset to actual turns
 	for (int i = 0; i < 19; i++)
 	{
 		if (instructionset[i] == '\0')break;
@@ -760,21 +735,21 @@ startup:
 			SDL_RenderCopy(gRenderer, tPixelTexture, NULL, NULL);
 			SDL_RenderPresent(gRenderer);
 		}
-		}
-
-		fprintf(fAntOut, "This run was sponsored by ant gang.");
-		SDL_Log("Saved instructions as TXT to \"%s\"\n", antoutfilename);
-		fclose(fAntOut);
-
-		if (!paused)
-		{
-			char antouttexturename[100];
-			sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
-			save_texture(gRenderer, tPixelTexture, antouttexturename);
-		}
-
-	end:
-		//Free resources and close SDL
-		close(&pixels, &pixelTex, gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings);
-		return 0;
 	}
+
+	fprintf(fAntOut, "This run was sponsored by ant gang.");
+	SDL_Log("Saved instructions as TXT to \"%s\"\n", antoutfilename);
+	fclose(fAntOut);
+
+	if (!paused)
+	{
+		char antouttexturename[100];
+		sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
+		save_texture(gRenderer, tPixelTexture, antouttexturename);
+	}
+
+end:
+	//Free resources and close SDL
+	close(&pixels, &pixelTex, gWindow, gRenderer, tPixelTexture, tMainMenu, tStrings);
+	return 0;
+}
