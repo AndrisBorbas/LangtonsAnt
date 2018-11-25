@@ -13,7 +13,7 @@ void drawMenu(TTF_Font** StartFont, TTF_Font** MenuFont, TTF_Font** InstructFont
 	for (int j = 0; j < 6; j++)
 	{
 		roundedBoxColor(*gRenderer, HelpButton1.x, HelpButton1.y, HelpButton1.x + HelpButton1.w, HelpButton1.y + HelpButton1.h, 6, altGRAYALPHA);
-		drawTextintoButton(*gRenderer, *HelpFont, tStrings, lStrings, HelpButton1, help[j], TextDARKORANGE);
+		drawTextintoButton(*gRenderer, *HelpFont, tStrings, lStrings, HelpButton1, help[j], TextDarkOrange);
 		SDL_RenderCopy(*gRenderer, *tStrings, NULL, lStrings);
 		HelpButton1.y = HelpButton1.y + HelpButton1.h - 6;
 	}
@@ -21,14 +21,14 @@ void drawMenu(TTF_Font** StartFont, TTF_Font** MenuFont, TTF_Font** InstructFont
 	//Draw Start button
 	roundedBoxColor(*gRenderer, StartButtonStroke.x, StartButtonStroke.y, StartButtonStroke.x + StartButtonStroke.w, StartButtonStroke.y + StartButtonStroke.h, 12, altDARKWHITE);
 	roundedBoxColor(*gRenderer, StartButton.x, StartButton.y, StartButton.x + StartButton.w, StartButton.y + StartButton.h, 12, altGRAY);
-	drawTextintoButton(*gRenderer, *StartFont, tStrings, lStrings, StartButton, "Start", TextORANGE);
+	drawTextintoButton(*gRenderer, *StartFont, tStrings, lStrings, StartButton, "Start", TextOrange);
 	SDL_RenderCopy(*gRenderer, *tStrings, NULL, lStrings);
 
 	//Draw resolution button
 	roundedBoxColor(*gRenderer, ResButton.x, ResButton.y, ResButton.x + ResButton.w, ResButton.y + ResButton.h, 12, altGRAY);
 	char buff[sizeof(int) * 2 + 2];
 	sprintf(buff, "%dx%d", settings.SCREEN.w, settings.SCREEN.h);
-	drawTextintoButton(*gRenderer, *MenuFont, tStrings, lStrings, ResButton, &buff, TextORANGE);
+	drawTextintoButton(*gRenderer, *MenuFont, tStrings, lStrings, ResButton, &buff, TextOrange);
 	SDL_RenderCopy(*gRenderer, *tStrings, NULL, lStrings);
 
 	//Draw resolution change buttons
@@ -41,12 +41,12 @@ void drawMenu(TTF_Font** StartFont, TTF_Font** MenuFont, TTF_Font** InstructFont
 	roundedBoxColor(*gRenderer, ScaleButton.x, ScaleButton.y, ScaleButton.x + ScaleButton.w, ScaleButton.y + ScaleButton.h, 6, altGRAY);
 	char sbuff[sizeof(int) * 1 + 8];
 	sprintf(sbuff, "Scale: %d", settings.SCALE);
-	drawTextintoButton(*gRenderer, *MenuFont, tStrings, lStrings, ScaleButton, &sbuff, TextORANGE);
+	drawTextintoButton(*gRenderer, *MenuFont, tStrings, lStrings, ScaleButton, &sbuff, TextOrange);
 	SDL_RenderCopy(*gRenderer, *tStrings, NULL, lStrings);
 
 	//Draw instructionset button
 	roundedBoxColor(*gRenderer, InstructButton.x, InstructButton.y, InstructButton.x + InstructButton.w, InstructButton.y + InstructButton.h, 6, altGRAY);
-	drawTextintoButton(*gRenderer, *InstructFont, tStrings, lStrings, InstructButton, settings.instructionset, TextORANGE);
+	drawTextintoButton(*gRenderer, *InstructFont, tStrings, lStrings, InstructButton, settings.instructionset, TextOrange);
 	SDL_RenderCopy(*gRenderer, *tStrings, NULL, lStrings);
 
 	//Render everything

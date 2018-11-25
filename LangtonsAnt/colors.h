@@ -40,4 +40,4 @@ enum HEXRGBA
 };
 
 //Colors for texts
-extern SDL_Color TextDARKWHITE, TextORANGE, TextDARKORANGE;
+extern SDL_Color TextOrange, TextDarkOrange;

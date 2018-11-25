@@ -1,14 +1,5 @@
 ﻿#include "Utilities.h"
 
-int delay(int number_of_milliseconds) 
-{
-	clock_t start_time = clock();
-
-	while (clock() < start_time + number_of_milliseconds)
-		;
-	return clock();
-}
-
 void memset32(void * dest, Uint32 value, uintptr_t size)
 {
 	uintptr_t i;

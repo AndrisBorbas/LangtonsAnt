@@ -2,9 +2,6 @@
 
 #include "includes.h"
 
-//millisecond based delay
-int delay(int number_of_milliseconds);
-
 //memset with 32 bit unsigned integer
 void memset32(void * dest, Uint32 value, uintptr_t size);
 

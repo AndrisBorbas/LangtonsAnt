@@ -38,7 +38,7 @@ bool initSDL(SDL_Window** gWindow, SDL_Renderer** gRenderer, SDL_Texture** tPixe
 
 void initTexture(SDL_Renderer** gRenderer, SDL_Texture** tTexture, SDL_Rect SCREEN)
 {
-	//Initialize screen texture
+	if (*tTexture != NULL)SDL_DestroyTexture(*tTexture);
 	*tTexture = SDL_CreateTexture(*gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN.w, SCREEN.h);
 }
 
@@ -103,7 +103,7 @@ void close(Uint32** pixels, Uint32*** pixelTex, SDL_Window* gWindow, SDL_Rendere
 void save_texture(SDL_Renderer* gRenderer, SDL_Texture* tTexture, const char *filename)
 {
 	SDL_Texture *tRender;
-	SDL_Surface *surf;
+	SDL_Surface *surface;
 	int st;
 	int w;
 	int h;
@@ -111,7 +111,7 @@ void save_texture(SDL_Renderer* gRenderer, SDL_Texture* tTexture, const char *fi
 	void *pixels;
 
 	pixels = NULL;
-	surf = NULL;
+	surface = NULL;
 	tRender = NULL;
 	format = SDL_PIXELFORMAT_RGBA32;
 
@@ -161,14 +161,14 @@ void save_texture(SDL_Renderer* gRenderer, SDL_Texture* tTexture, const char *fi
 	}
 
 	/* Copy pixel data over to surface */
-	surf = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, SDL_BITSPERPIXEL(format), w * SDL_BYTESPERPIXEL(format), format);
-	if (!surf) {
+	surface = SDL_CreateRGBSurfaceWithFormatFrom(pixels, w, h, SDL_BITSPERPIXEL(format), w * SDL_BYTESPERPIXEL(format), format);
+	if (!surface) {
 		SDL_Log("Failed creating new surface: %s\n", SDL_GetError());
 		goto cleanup;
 	}
 
 	/* Save result to an image */
-	st = SDL_SaveBMP(surf, filename);
+	st = SDL_SaveBMP(surface, filename);
 	if (st != 0) {
 		SDL_Log("Failed saving image: %s\n", SDL_GetError());
 		goto cleanup;
@@ -177,7 +177,7 @@ void save_texture(SDL_Renderer* gRenderer, SDL_Texture* tTexture, const char *fi
 	SDL_Log("Saved texture as BMP to \"%s\"\n", filename);
 
 cleanup:
-	SDL_FreeSurface(surf);
+	SDL_FreeSurface(surface);
 	free(pixels);
 	SDL_DestroyTexture(tRender);
 }
