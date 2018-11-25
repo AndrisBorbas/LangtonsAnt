@@ -532,6 +532,7 @@ startup:
 				char antouttexturename[100];
 				sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 				save_texture(gRenderer, tPixelTexture, antouttexturename);
+				SDL_Log("Saved instructions as TXT to \"%s\"\n", antoutfilename);
 
 				//Return to menu
 				goto startup;
@@ -643,6 +644,7 @@ startup:
 						char antouttexturename[100];
 						sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 						save_texture(gRenderer, tPixelTexture, antouttexturename);
+						SDL_Log("Saved instructions as TXT to \"%s\"\n", antoutfilename);
 
 						//Return to menu start on hitting p
 						goto startup;
@@ -699,6 +701,7 @@ startup:
 						char antouttexturename[100];
 						sprintf(antouttexturename, "./Runs/antout_%d-%d-%d_%dh-%dm-%ds(%d).bmp", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, num);
 						save_texture(gRenderer, tPixelTexture, antouttexturename);
+						SDL_Log("Saved instructions as TXT to \"%s\"\n", antoutfilename);
 
 						//Return to menu start on hitting p
 						goto startup;
